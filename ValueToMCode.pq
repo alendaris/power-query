@@ -29,19 +29,7 @@ let
         in 
             Return,
 
-//none
-//null
-//anynonnull
-//duration
-//datetimezone
-//datetime
-//time
-//date
-//number
-//logical
-//binary
-//record
-//table
+
 
     /*AnyToMCode = (value as any) as text =>
         let 
