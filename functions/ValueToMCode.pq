@@ -1,17 +1,30 @@
 (value as any,optional indentStart as number) =>
 let
-//    Source = {"3"},
 
     indent = if indentStart is null then 0 else indentStart,
 
-    NullToMCode = (value as any,optional indent as number) as text =>
+    NullToMCode = (value as any) as text =>
         """""",
 
-    TextToMCode = (value as text,optional indent as number) as text =>
+    TextToMCode = (value as text) as text =>
         """" & Text.Replace(value,"""","""""") & """",
     
-    NumberToMCode = (value as number,optional indent as number) as text =>
+    NumberToMCode = (value as number) as text =>
         Number.ToText(value),
+
+    DateToMCode = (value as date) as text =>
+        "#date(" & Text.From(Date.Year(value)) & "," & Text.From(Date.Month(value)) & "," & Text.From(Date.Day(value)) & ")",
+
+    TimeToMCode = (value as time) as text =>
+        "#time(" & Text.From(Time.Hour(value)) & "," & Text.From(Time.Minute(value)) & "," & Text.From(Time.Second(value)) & ")",
+
+    DatetimeToMCode = (value as datetime) as text =>
+        "#datetime(" & Text.From(DateTime.ToRecord(value)[Year]) & "," & Text.From(DateTime.ToRecord(value)[Month]) & "," & Text.From(DateTime.ToRecord(value)[Day]) & "," & Text.From(DateTime.ToRecord(value)[Hour]) & "," & Text.From(DateTime.ToRecord(value)[Minute]) & "," & Text.From(DateTime.ToRecord(value)[Second]) & ")",
+
+//    DurationToMCode = (value as date) as text =>
+//        "#date(" & Text.From(Date.Year(date)) & "," & Text.From(Date.Month(date)) & "," & Text.From(Date.Day(date)) & ")",
+
+
 
     ListToMCode = (value as list,optional indent as number) as text =>
         let
@@ -43,9 +56,13 @@ let
                 if Value.Is(value,Table.Type) then TableToMCode(value,indent) 
                 else if Value.Is(value,Record.Type) then RecordToMCode(value,indent)
                 else if Value.Is(value,List.Type) then ListToMCode(value,indent)
-                else if Value.Is(value,Text.Type) then TextToMCode(value,indent)
-                else if Value.Is(value,Number.Type) then NumberToMCode(value,indent)
-                else if Value.Is(value,Null.Type) then NullToMCode(value,indent)
+//                else if Value.Is(value,Duration.Type) then DurationToMCode(value)
+                else if Value.Is(value,Time.Type) then TimeToMCode(value)
+                else if Value.Is(value,Date.Type) then DateToMCode(value)
+                else if Value.Is(value,DateTime.Type) then DatetimeToMCode(value)
+                else if Value.Is(value,Text.Type) then TextToMCode(value)
+                else if Value.Is(value,Number.Type) then NumberToMCode(value)
+                else if Value.Is(value,Null.Type) then NullToMCode(value)
                 else try Text.From(value)
         in
             Return
