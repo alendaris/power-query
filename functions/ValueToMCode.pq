@@ -4,7 +4,7 @@ let
     indent = if indentStart is null then 0 else indentStart,
 
     NullToMCode = (value as any) as text =>
-        """""",
+        "null",
 
     LogicalToMCode = (value as logical) as text =>
         if value then "TRUE" else "FALSE",
@@ -57,10 +57,22 @@ let
     BinaryToMCode = (value as binary) as text =>
         "Binary.Decompress(Binary.FromText(" & TextToMCode(Text.From(Binary.Compress(value,Compression.Deflate))) & "),Compression.Deflate)",
 
+    FunctionToMCode = (value as function) as text =>
+        if Record.HasFields(Value.Metadata(Value.Type(value)),"Source Code") then
+            let  
+                Source = Value.Metadata(Value.Type(value))[Source Code],
+                Deflated = Text.From(Binary.Compress(Text.ToBinary(Source),Compression.Deflate)),
+                Reinflate = "Text.FromBinary(Binary.Decompress(Binary.FromText(" & Deflated & "),Compression.Deflate))"
+            in  
+                TextToMCode(Reinflate)
+        else
+            TextToMCode("/* Function without Source Code Metadata */null"),
+
     Return =
         let 
             Return = 
-                if Value.Is(value,Table.Type) then TableToMCode(value,indent) 
+                if Value.Is(value,Function.Type) then FunctionToMCode(value)
+                else if Value.Is(value,Table.Type) then TableToMCode(value,indent) 
                 else if Value.Is(value,Record.Type) then RecordToMCode(value,indent)
                 else if Value.Is(value,List.Type) then ListToMCode(value,indent)
                 else if Value.Is(value,Duration.Type) then DurationToMCode(value)
