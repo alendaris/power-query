@@ -1,4 +1,4 @@
-(Source as any,optional indentStart as number) =>
+(value as any,optional indentStart as number) =>
 let
 //    Source = {"3"},
 
@@ -37,34 +37,17 @@ let
         in 
             Return,
 
-
-    /*AnyToMCode = (value as any) as text =>
+    Return =
         let 
-            Return = Binary.From(value)
-        in 
-            Return,*/
-
-    Fail = (value as any) as text => "Type Unrecognized",
-
-    Switch = (Expression as any, Values as list, Results as list, optional Else as any) =>
-        try Results{List.PositionOf(Values, Expression)} 
-        otherwise
-            if Else = null then Fail
-            else Else,
-
-
-    Return = 
-        let 
-            ParseFunc = Switch(Value.Type(Source),
-            {type null,type text,type number},
-            {NullToMCode,TextToMCode,NumberToMCode}),
             Return = 
                 if Value.Is(value,Table.Type) then TableToMCode(value,indent) 
                 else if Value.Is(value,Record.Type) then RecordToMCode(value,indent)
                 else if Value.Is(value,List.Type) then ListToMCode(value,indent)
-                else ParseFunc(Source,indent)
+                else if Value.Is(value,Text.Type) then TextToMCode(value,indent)
+                else if Value.Is(value,Number.Type) then NumberToMCode(value,indent)
+                else if Value.Is(value,Null.Type) then NullToMCode(value,indent)
+                else try Text.From(value)
         in
-            Return,
-
+            Return
 in
     Return
