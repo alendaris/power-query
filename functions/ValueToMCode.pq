@@ -21,6 +21,14 @@ let
         in
             "{" & Text.Combine(#"Added Custom"[MCode],", ") & "}",
 
+    RecordToMCode = (value as record,optional indent as number) as text =>
+    let
+        fields = Record.FieldNames(value),
+        withValues = List.Transform(fields,each _ & " = " & ValueToMCode(Record.Field(value,_))),
+        Return = "[" & Text.Combine(withValues,",#(lf)") & "]"
+    in
+        Return,
+
     TableToMCode = (value as table,optional indent as number) =>
         let
             headers = ValueToMCode(Table.ColumnNames(value)),
@@ -29,19 +37,6 @@ let
         in 
             Return,
 
-//none
-//null
-//anynonnull
-//duration
-//datetimezone
-//datetime
-//time
-//date
-//number
-//logical
-//binary
-//record
-//table
 
     /*AnyToMCode = (value as any) as text =>
         let 
@@ -64,6 +59,7 @@ let
             {NullToMCode,TextToMCode,NumberToMCode}),
             Return = 
                 if Value.Is(value,Table.Type) then TableToMCode(value,indent) 
+                else if Value.Is(value,Record.Type) then RecordToMCode(value,indent)
                 else if Value.Is(value,List.Type) then ListToMCode(value,indent)
                 else ParseFunc(Source,indent)
         in
