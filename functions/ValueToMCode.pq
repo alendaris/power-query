@@ -52,7 +52,8 @@ let
             if Else = null then Fail
             else Else,
 
-    ToMCode = (value as any,optional indent as number) as any =>
+
+    Return = 
         let 
             ParseFunc = Switch(Value.Type(Source),
             {type null,type text,type number},
@@ -64,8 +65,6 @@ let
                 else ParseFunc(Source,indent)
         in
             Return,
-
-    Return = ToMCode(Source)
 
 in
     Return
