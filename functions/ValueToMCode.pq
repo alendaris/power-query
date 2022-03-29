@@ -42,7 +42,7 @@ let
     RecordToMCode = (value as record,optional indent as number) as text =>
     let
         fields = Record.FieldNames(value),
-        withValues = List.Transform(fields,each _ & " = " & ValueToMCode(Record.Field(value,_))),
+        withValues = List.Transform(fields,each "#" & TextToMCode(_) & " = " & ValueToMCode(Record.Field(value,_))),
         Return = "[" & Text.Combine(withValues,",#(lf)") & "]"
     in
         Return,
