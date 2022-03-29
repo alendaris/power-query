@@ -62,9 +62,9 @@ let
             let  
                 Source = Value.Metadata(Value.Type(value))[Source Code],
                 Deflated = Text.From(Binary.Compress(Text.ToBinary(Source),Compression.Deflate)),
-                Reinflate = "Text.FromBinary(Binary.Decompress(Binary.FromText(" & Deflated & "),Compression.Deflate))"
+                Reinflate = "Text.FromBinary(Binary.Decompress(Binary.FromText(" & TextToMCode(Deflated) & "),Compression.Deflate))"
             in  
-                TextToMCode(Reinflate)
+                Reinflate
         else
             TextToMCode("/* Function without Source Code Metadata */null"),
 
