@@ -1,4 +1,5 @@
 (value as any,optional indentStart as number) =>
+// indent doesn't do anything right now, but I intend to have the complex types switch to a multi-line indented output if one of its internal values is also complex
 let
 
     indent = if indentStart is null then 0 else indentStart,
