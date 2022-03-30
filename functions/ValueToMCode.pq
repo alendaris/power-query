@@ -1,4 +1,4 @@
-(value as any,optional indentStart as number) =>
+(value as any,optional indentStart as number) as text =>
 // indent doesn't do anything right now, but I intend to have the complex types switch to a multi-line indented output if one of its internal values is also complex
 let
     ThisFunctionName = "ValueToMCode",
