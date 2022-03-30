@@ -1,7 +1,7 @@
 (value as any,optional indentStart as number) =>
 // indent doesn't do anything right now, but I intend to have the complex types switch to a multi-line indented output if one of its internal values is also complex
 let
-
+    ThisFunctionName = "ValueToMCode",
     indent = if indentStart is null then 0 else indentStart,
 
     NullToMCode = (value as any) as text =>
@@ -35,22 +35,22 @@ let
         let
             Source = value,
             #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
-            #"Added Custom" = Table.AddColumn(#"Converted to Table", "MCode", each ValueToMCode([Column1]))
+            #"Added Custom" = Table.AddColumn(#"Converted to Table", "MCode", each Expression.Evaluate(ThisFunctionName,#shared)([Column1]))
         in
             "{" & Text.Combine(#"Added Custom"[MCode],", ") & "}",
 
     RecordToMCode = (value as record,optional indent as number) as text =>
     let
         fields = Record.FieldNames(value),
-        withValues = List.Transform(fields,each "#" & TextToMCode(_) & " = " & ValueToMCode(Record.Field(value,_))),
+        withValues = List.Transform(fields,each "#" & TextToMCode(_) & " = " & Expression.Evaluate(ThisFunctionName,#shared)(Record.Field(value,_))),
         Return = "[" & Text.Combine(withValues,",#(lf)") & "]"
     in
         Return,
 
     TableToMCode = (value as table,optional indent as number) =>
         let
-            headers = ValueToMCode(Table.ColumnNames(value)),
-            rows = ValueToMCode(Table.ToRows(value)),
+            headers = ListToMCode(Table.ColumnNames(value)),
+            rows = ListToMCode(Table.ToRows(value)),
             Return = "#table(#(lf)" & headers & ",#(lf)" & rows & "#(lf))"
         in 
             Return,
