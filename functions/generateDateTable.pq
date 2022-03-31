@@ -8,7 +8,7 @@ func = (FromYear as number, ToYear as number, optional StartofFiscalYear as numb
         ToDate = #date(ToYear, 12, 31),
         Source = List.Dates(
             FromDate,
-            Duration.Days(ToDate-FromDate)=1,
+            Duration.Days(ToDate-FromDate)+1,
             #duration(1, 0, 0, 0)
         ),
         #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
@@ -33,7 +33,8 @@ func = (FromYear as number, ToYear as number, optional StartofFiscalYear as numb
         #"Inserted Week of Year" = Table.AddColumn(#"Inserted End of Quarter", "Week of Year", each Date.WeekOfYear([Date],firstDayofWeek), Int64.Type),
         #"Inserted Week of Month" = Table.AddColumn(#"Inserted Week of Year", "Week of Month", each Date.WeekOfMonth([Date],firstDayofWeek), Int64.Type),
         #"Inserted Start of Week" = Table.AddColumn(#"Inserted Week of Month", "Start of Week", each Date.StartOfWeek([Date],firstDayofWeek), type date),
-        #"Inserted End of Week" = Table.AddColumn(#"Inserted Start of Week", "End of Week", each Date.EndOfWeek([Date],firstDayofWeek), type date), FiscalMonthBaseIndex=13-StartofFiscalYear, adjustedFiscalMonthBaseIndex=if(FiscalMonthBaseIndex>=12 or FiscalMonthBaseIndex<0) then 0 else FiscalMonthBaseIndex,
+        #"Inserted End of Week" = Table.AddColumn(#"Inserted Start of Week", "End of Week", each Date.EndOfWeek([Date],firstDayofWeek), type date),
+        FiscalMonthBaseIndex=13-StartofFiscalYear, adjustedFiscalMonthBaseIndex=if(FiscalMonthBaseIndex>=12 or FiscalMonthBaseIndex<0) then 0 else FiscalMonthBaseIndex,
         #"Added Custom" = Table.AddColumn(#"Inserted End of Week", "FiscalBaseDate", each Date.AddMonths([Date],adjustedFiscalMonthBaseIndex)),
         #"Changed Type1" = Table.TransformColumnTypes(#"Added Custom",{{"FiscalBaseDate", type date}}),
         #"Inserted Year1" = Table.AddColumn(#"Changed Type1", "Year.1", each Date.Year([FiscalBaseDate]), Int64.Type),
@@ -53,7 +54,7 @@ func = (FromYear as number, ToYear as number, optional StartofFiscalYear as numb
         #"Changed Type3" = Table.TransformColumnTypes(#"Added Custom2",{{"Year Offset", Int64.Type}}),
         #"Added Custom3" = Table.AddColumn(#"Changed Type3", "Quarter Offset", each (([Year]-Date.Year(Today))*4)+([Quarter]-Date.QuarterOfYear(Today))),
         #"Changed Type4" = Table.TransformColumnTypes(#"Added Custom3",{{"Quarter Offset", Int64.Type}}),
-        #"Added Custom4" = Table.AddColumn(#"Changed Type4", "Year-Month", each Date.ToText([Date],"MMM yyyy")),
+        #"Added Custom4" = Table.AddColumn(#"Changed Type4", "Year-Month", each Date.ToText([Date],"MMM yyyy"))
     in
         #"Changed Type4",
 
@@ -67,7 +68,7 @@ TableToMCode =
 ExampleTable = Table.Combine({Table.FirstN(func(2020, Date.Year(DateTime.LocalNow())), 1), Table.LastN(func(2020, Date.Year(DateTime.LocalNow())), 1)}),
 
 fntype = type function
-    {
+    (
         FromYear as (type number meta [
             Documentation.FieldCaption = "From Year",
             Documentation.FieldDescription = "Earliest calendar year in the date table, which will start on January 1",
@@ -75,7 +76,7 @@ fntype = type function
         ]),
         ToYear as (type number meta [
             Documentation.FieldCaption = "To Year",
-            Documentation.FieldDescription "Latest calendar year in the date table, which will end on December 31",
+            Documentation.FieldDescription = "Latest calendar year in the date table, which will end on December 31",
             Documentation.SampleValues = {Text.From(Date.Year(DateTime.LocalNow()))}
         ]),
         optional StartofFiscalYear as (type number meta [
@@ -86,7 +87,7 @@ fntype = type function
     ) as table meta
         [
             Documentation.Name = "generateDateTable",
-            Documentation.LongDescription = "This function generates a date table from FromYear to ToYear with the following fields:#(cr)#(lf)" & Text.Combine(Record.FieldNames(Table.First(ExampleTable)), ", ") & ". For fiscal year calculations, StartofFiscalYear establishes the first month of the fiscal year.",
+            Documentation.LongDescription = "This function generates a date table from FromYear to ToYear with the following fields:#(cr)#(lf)" & Text.Combine(Record.FieldNames(Table.First(ExampleTable)), ", ") & ". For fiscal year calculations, StartofFiscalYear establishes the first month of the fiscal year."/*,
             Documentation.Examples =
             {
                 [
@@ -94,9 +95,8 @@ fntype = type function
                     Code = "generateDateTable(2020, Date.Year(DateTime.LocalNow()))",
                     Result = TableToMCode(ExampleTable)
                 ]
-            }
+            }*/
         ]
 
 in
     Value.ReplaceType(func,fntype)
-
