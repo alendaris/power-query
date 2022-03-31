@@ -1,6 +1,6 @@
 let
     FunctionName = "ValueToMCode",
-    findQueryByDocumentationName = (Name as text) =>
+    findQueryByDocumentationName = (Name as text) as text =>
         let
             Source = Record.ToTable(#shared),
             #"Added Custom" = Table.AddColumn(Source, "Type Metadata", each Value.Metadata(Value.Type([Value]))),
@@ -9,10 +9,10 @@ let
             #"Removed Duplicates" = Table.Distinct(#"Filtered Rows", {"Documentation.Name"})[Name]{0}
         in
             #"Removed Duplicates",
-    func = (value as any,optional indentStart as number) as text =>
+    func = (value as any, optional indentStart as number) as text =>
         // indent doesn't do anything right now, but I intend to have the complex types switch to a multi-line indented output if one of its internal values is also complex
         let
-            ThisFunctionName = findQueryByDocumentationName(FunctionName),
+            ThisFunctionName = "Query6",//findQueryByDocumentationName(FunctionName),
             indent = if indentStart is null then 0 else indentStart,
         
             NullToMCode = (value as any) as text =>
@@ -46,14 +46,14 @@ let
                 let
                     Source = value,
                     #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
-                    #"Added Custom" = Table.AddColumn(#"Converted to Table", "MCode", each Expression.Evaluate(ThisFunctionName,#shared)([Column1]))
+                    #"Added Custom" = Table.AddColumn(#"Converted to Table", "MCode", each Expression.Evaluate(ThisFunctionName, #shared)([Column1]))
                 in
                     "{" & Text.Combine(#"Added Custom"[MCode],", ") & "}",
         
             RecordToMCode = (value as record,optional indent as number) as text =>
             let
                 fields = Record.FieldNames(value),
-                withValues = List.Transform(fields,each "#" & TextToMCode(_) & " = " & Expression.Evaluate(ThisFunctionName,#shared)(Record.Field(value,_))),
+                withValues = List.Transform(fields,each "#" & TextToMCode(_) & " = " & Expression.Evaluate(ThisFunctionName, #shared)(Record.Field(value,_))),
                 Return = "[" & Text.Combine(withValues,",#(lf)") & "]"
             in
                 Return,
@@ -103,24 +103,24 @@ let
                             in  
                                 Return
                 in
-                    Return
+                    ThisFunctionName
         in
             Return,
 
 funcType = type function
-    {
+    (
         value as (type number meta [
             Documentation.FieldCaption = "Value",
             Documentation.FieldDescription = "Value to be converted to M Code",
 //          Documentation.SampleValues = {{1,2,3,4,5}}
             Formatting.IsCode = true
         ]),
-        indentStart as (optional type number meta [
+        optional indentStart as (type number meta [
             Documentation.FieldCaption = "Indentation",
-            Documentation.FieldDescription "Used internally to indent M Code",
+            Documentation.FieldDescription = "Used internally to indent M Code",
             Documentation.AllowedValues = {0}
         ])
-    ) as table meta
+     ) as text meta
         [
             Documentation.Name = "ValueToMCode",
             Documentation.LongDescription = "This function converts a value into M Code. Binary values are converted to a compressed string wrapped inside of function calls to decompress back to a binary value. Functions must have a metadata field named ""Source Code "".",
@@ -128,11 +128,11 @@ funcType = type function
             {
                 [
                     Description = "Convert a string with quoted text to M Code.",
-                    Code = ThisFunctionName & "(""The book started with the line, ""There was no hope for a walk that day."")",
+                    Code = FunctionName & "(""The book started with the line, ""There was no hope for a walk that day."")",
                     Result = Expression.Evaluate(Code,#shared)
                 ]
             }
         ]
 
 in
-    Value.ReplaceType(func,fntype)
+    Value.ReplaceType(func,funcType)
