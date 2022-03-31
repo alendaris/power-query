@@ -1,5 +1,11 @@
 let
     FunctionName = "ValueToMCode",
+    DocumentationLongDescriptionBase = "This function converts a value into M Code. Binary values are converted to a compressed string wrapped inside of function calls to decompress back to a binary value. Functions must have a metadata field named Source Code.",
+    DocumentationLongDescriptionComplete = 
+        if ThisFunctionName <> FunctionName then
+            DocumentationLongDescriptionBase & "#(cr)#(lf)#(cr)#(lf)NOTE: This function performs best when it is named """ & Expression.Identifier(FunctionName) & """. Please consider renaming the function."
+        else
+            DocumentationLongDescriptionBase,
     findQueryByDocumentationName = 
         let
             Source = Record.ToTable(#shared),
@@ -107,7 +113,11 @@ let
                     Return
         in
             Return,
+
     ExampleArgument = "The book started with the line, ""There was no hope of a walk that day.""",
+
+
+
     funcType = type function
         (
             value as (type number meta [
@@ -123,8 +133,8 @@ let
             ])
          ) as text meta
             [
-                Documentation.Name = "ValueToMCode",
-                Documentation.LongDescription = "This function converts a value into M Code. Binary values are converted to a compressed string wrapped inside of function calls to decompress back to a binary value. Functions must have a metadata field named ""Source Code "".",
+                Documentation.Name = FunctionName,
+                Documentation.LongDescription = DocumentationLongDescriptionComplete,
                 Documentation.Examples =
                 {
                     [
