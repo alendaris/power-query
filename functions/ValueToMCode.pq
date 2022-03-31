@@ -9,15 +9,16 @@ let
     findQueryByDocumentationName = 
         let
             Source = Record.ToTable(#shared),
-            #"Added Custom" = Table.AddColumn(Source, "Type Metadata", each Value.Metadata(Value.Type([Value]))),
+            #"Removed Errors" = Table.RemoveRowsWithErrors(Source, {"Value"}),
+            #"Added Custom" = Table.AddColumn(#"Removed Errors", "Type Metadata", each Value.Metadata(Value.Type([Value]))),
             #"Added Custom1" = Table.AddColumn(#"Added Custom", "Documentation.Name", each if Record.HasFields([Type Metadata],"Documentation.Name") then [Type Metadata][Documentation.Name] else null),
             #"Filtered Rows" = Table.SelectRows(#"Added Custom1", each ([Documentation.Name] = FunctionName)),
             #"Removed Duplicates" = Table.Distinct(#"Filtered Rows", {"Documentation.Name"})[Name]{0}
         in
             #"Removed Duplicates",
     ThisFunctionName = findQueryByDocumentationName,
-    envLocal = Record.Combine({#shared, ThisFunctionName = ThisFunctionName}),
-    func = (value as any, optional indentStart as number) as text =>
+    envLocal = Record.Combine({#shared, [ThisFunctionName = ThisFunctionName]}),
+    func = (value as any, optional indentStart as number) as any =>
         // indent doesn't do anything right now, but I intend to have the complex types switch to a multi-line indented output if one of its internal values is also complex
         let
             indent = if indentStart is null then 0 else indentStart,
@@ -49,27 +50,60 @@ let
             DurationToMCode = (value as duration) as text =>
                 "#duration(" & Text.From(Duration.Days(value)) & "," & Text.From(Duration.Hours(value)) & "," & Text.From(Duration.Minutes(value)) & "," & Text.From(Duration.Seconds(value)) & ")",
         
-            ListToMCode = (value as list,optional indent as number) as text =>
+            ListToMCode = (value as list, optional indent as number) as text =>
                 let
                     Source = value,
+                    Types = List.Transform(Source,each Value.Type(_)),
+                    needsIndent = List.ContainsAny(Types,{List.Type,Record.Type,Table.Type}),
                     #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
-                    #"Added Custom" = Table.AddColumn(#"Converted to Table", "MCode", each Expression.Evaluate(ThisFunctionName, envLocal)([Column1]))
+                    #"Added Custom" = Table.AddColumn(#"Converted to Table", "MCode", each Expression.Evaluate(ThisFunctionName, envLocal)([Column1])),
+                    Result =
+                        if needsIndent then
+                            "#(cr)#(lf)" & Text.PadStart("", 4*indent, " ") & "{#(cr)#(lf)" &
+                            Text.Combine(
+                                List.Transform(
+                                    Source,
+                                    each Text.PadStart("", 4*(indent)+1, " ") & Expression.Evaluate(ThisFunctionName, envLocal)(_, indent + 1)),
+                                ",#(cr)#(lf)") &
+                            "#(cr)#(lf)" & Text.PadStart("",4*indent, " ") & "}#(cr)#(lf)"
+                        else  
+                            "{" & Text.Combine(#"Added Custom"[MCode],", ") & "}"
                 in
-                    "{" & Text.Combine(#"Added Custom"[MCode],", ") & "}",
+                    Result,
         
-            RecordToMCode = (value as record,optional indent as number) as text =>
+            RecordToMCode = (value as record, optional indent as number) as text =>
             let
                 fields = Record.FieldNames(value),
-                withValues = List.Transform(fields,each "#" & TextToMCode(_) & " = " & Expression.Evaluate(ThisFunctionName, envLocal)(Record.Field(value,_))),
-                Return = "[" & Text.Combine(withValues,",#(lf)") & "]"
+                Types = List.Transform(Record.FieldValues(value),each Value.Type(_)),
+                needsIndent = List.ContainsAny(Types,{List.Type,Record.Type,Table.Type}),
+                withValues = List.Transform(fields,each "#" & TextToMCode(_) & " = " & Expression.Evaluate(ThisFunctionName, envLocal)(Record.Field(value,_), indent+1)),
+                Return = 
+                    if needsIndent then
+                        "#(cr)#(lf)" & Text.PadStart("", 4*indent, " ") & "[#(cr)#(lf)" & Text.PadStart("", 4*(indent+1), " ") &
+                        Text.Combine(withValues,",#(cr)#(lf)" & Text.PadStart("", 4*(indent+1), " ")) &
+                        "#(cr)#(lf)" & Text.PadStart("",4*indent, " ") & "]#(cr)#(lf)"
+                    else
+                        "[" & Text.Combine(withValues,",#(lf)") & "]"
             in
                 Return,
         
-            TableToMCode = (value as table,optional indent as number) =>
+            TableToMCode = (value as table, indent as number) =>
                 let
-                    headers = ListToMCode(Table.ColumnNames(value)),
-                    rows = ListToMCode(Table.ToRows(value)),
-                    Return = "#table(#(lf)" & headers & ",#(lf)" & rows & "#(lf))"
+                    headers = ListToMCode(Table.ColumnNames(value),indent),
+                    rows = List.Transform(Table.ToRows(value), each ListToMCode(_,0)),
+                    needsIndent =
+                    let
+                        Source = Table.ToRows(value),
+                        typeCheck = List.ContainsAny(
+                            List.Transform(Source,
+                                each List.ContainsAny(List.Transform(_, each Value.Type(_)),
+                                {List.Type,Record.Type,Table.Type})
+                            ),
+                            {true}
+                        )
+                    in
+                        typeCheck,
+                    Return = "#table(" & headers & ", {" & Text.Combine(rows,", ") & "})"
                 in 
                     Return,
         
@@ -89,7 +123,7 @@ let
         
             Return =
                 let 
-                    Return = 
+                    Return =
                         if Value.Is(value,Function.Type) then FunctionToMCode(value)
                         else if Value.Is(value,Table.Type) then TableToMCode(value,indent) 
                         else if Value.Is(value,Record.Type) then RecordToMCode(value,indent)
@@ -120,7 +154,7 @@ let
 
     funcType = type function
         (
-            value as (type number meta [
+            value as (type any meta [
                 Documentation.FieldCaption = "Value",
                 Documentation.FieldDescription = "Value to be converted to M Code",
                 Documentation.SampleValues = {{1,2,3,4,5}},
@@ -131,7 +165,7 @@ let
                 Documentation.FieldDescription = "Used internally to indent M Code",
                 Documentation.AllowedValues = {0}
             ])
-         ) as text meta
+         ) as any meta
             [
                 Documentation.Name = FunctionName,
                 Documentation.LongDescription = DocumentationLongDescriptionComplete,
