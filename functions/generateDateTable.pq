@@ -76,6 +76,11 @@ fntype = type function
         ToYear as (type number meta [
             Documentation.FieldCaption = "To Year",
             Documentation.FieldDescription "Latest calendar year in the date table, which will end on December 31",
+            Documentation.SampleValues = {Text.From(Date.Year(DateTime.LocalNow()))}
+        ]),
+        optional StartofFiscalYear as (type number meta [
+            Documentation.FieldCaption = "Start of Fiscal Year",
+            Documentation.FieldDescription = "Month number of the first month in the fiscal year.",
             Documentation.SampleValues = {"10"}
         ])
     ) as table meta
