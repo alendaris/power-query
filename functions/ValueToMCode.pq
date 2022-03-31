@@ -105,7 +105,7 @@ let
                 in
                     Return
         in
-            Return
+            Return,
 
 funcType = type function
     {
