@@ -19,10 +19,11 @@ let
     ThisFunctionName = findQueryByDocumentationName,
     envLocal = Record.Combine({#shared, [ThisFunctionName = ThisFunctionName]}),
     func = (value as any, optional indentStart as number) as any =>
-        // indent doesn't do anything right now, but I intend to have the complex types switch to a multi-line indented output if one of its internal values is also complex
         let
+            // indent tracks the current indentation level
+            // for the simple types, we don't worry about the indent level, as they should display inline in most cases
             indent = if indentStart is null then 0 else indentStart,
-        
+
             NullToMCode = (value as any) as text =>
                 "null",
         
@@ -59,13 +60,13 @@ let
                     #"Added Custom" = Table.AddColumn(#"Converted to Table", "MCode", each Expression.Evaluate(ThisFunctionName, envLocal)([Column1])),
                     Result =
                         if needsIndent then
-                            "#(cr)#(lf)" & Text.PadStart("", 4*indent, " ") & "{#(cr)#(lf)" &
+                            Text.PadStart("", 4*indent, " ") & "{#(cr)#(lf)" &
                             Text.Combine(
                                 List.Transform(
                                     Source,
                                     each Text.PadStart("", 4*(indent)+1, " ") & Expression.Evaluate(ThisFunctionName, envLocal)(_, indent + 1)),
                                 ",#(cr)#(lf)") &
-                            "#(cr)#(lf)" & Text.PadStart("",4*indent, " ") & "}#(cr)#(lf)"
+                            "#(cr)#(lf)" & Text.PadStart("",4*indent, " ") & "}"
                         else  
                             "{" & Text.Combine(#"Added Custom"[MCode],", ") & "}"
                 in
@@ -89,8 +90,6 @@ let
         
             TableToMCode = (value as table, indent as number) =>
                 let
-                    headers = ListToMCode(Table.ColumnNames(value),indent),
-                    rows = List.Transform(Table.ToRows(value), each ListToMCode(_,0)),
                     needsIndent =
                     let
                         Source = Table.ToRows(value),
@@ -103,7 +102,18 @@ let
                         )
                     in
                         typeCheck,
-                    Return = "#table(" & headers & ", {" & Text.Combine(rows,", ") & "})"
+                    headers = ListToMCode(Table.ColumnNames(value),indent),
+                    rows = List.Transform(Table.ToRows(value), each ListToMCode(_, 0)),
+                    Return = 
+                        if needsIndent then  
+                            "#table(#(cr)" & Text.PadStart("", 4*(indent+1), " ") &
+                            headers & ",#(cr)" & Text.PadStart("", 4*(indent+1), " ") &
+                            "{#(cr)#(lf)" & Text.PadStart("",4*(indent+2), " ") & "#(cr)#(lf)" &
+                            Text.Combine(rows, ",#(cr)#(lf)" & Text.PadStart("", 4*(indent+2), " ")) &
+                            "#(cr)#(lf)" & Text.PadStart("",4*(indent+1), " ") & "}#(cr)#(lf)" &
+                            "#(cr)#(lf)" & Text.PadStart("",4*indent, " ") & ")#(cr)#(lf)"
+                        else
+                            "#table(" & headers & ", {" & Text.Combine(rows,", ") & "})"
                 in 
                     Return,
         
