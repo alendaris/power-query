@@ -129,7 +129,7 @@ let
                     if ThisFunctionName <> FunctionName then
                         "#(cr)#(lf)#(cr)#(lf)NOTE: This function performs best when it is named " & FunctionName & ". Please consider renaming the function."
                     else
-                        null,
+                        "",
                 Documentation.Examples =
                 {
                     [
