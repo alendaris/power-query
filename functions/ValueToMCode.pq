@@ -127,7 +127,7 @@ let
                 Documentation.LongDescription = 
                     "This function converts a value into M Code. Binary values are converted to a compressed string wrapped inside of function calls to decompress back to a binary value. Functions must have a metadata field named ""Source Code ""." &
                     if ThisFunctionName <> FunctionName
-                        "#(cr)#(lf)#(cr)#(lf)NOTE: This function performs best when it is named " & Expression.Identity(FunctionName) & ". Please consider renaming the function."
+                        "#(cr)#(lf)#(cr)#(lf)NOTE: This function performs best when it is named " & Expression.Identifier(FunctionName) & ". Please consider renaming the function."
                     else
                         null,
                 Documentation.Examples =
