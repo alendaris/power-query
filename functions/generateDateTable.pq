@@ -57,7 +57,12 @@ func = (FromYear as number, ToYear as number, optional StartofFiscalYear as numb
     in
         #"Changed Type4",
 
-TableToMCode = ValueToMCode,
+TableToMCode = 
+    let
+        compressedCode = "nVjRbus2DH3vVwgOsNkXXrp9QAf0pinuBdo+tNmALQgu1FhpDDhWIMlts2H/PpKSHNlRkrp6aGORPDoiaYpy+sqrRjCuGa93udyaUta8YmVdiNo8Ga4Myupm8yxUhj+NeDfs6veLy0unxAopdP0z/kcMsy7rF6bKl7VhtXzL2XNj2HfQNaIumJFszV8FM2vBlnKzrcQ7M7ut0Ey/lWa5RgXONk1lyl+qshZuDVEw2ZgtIJUrJmFarlhpNKEq5Eu7gGfYRqWlh76ohLlgMGbrUt829RJ398A3gl2x5E80mcn7iSxEkpOa29AVrhJ6oEQPVBWyrtmvTFRahPL8gqwfQMXhAUQaOrbjOeZGgpiJM76TL+WSR+0rK4piAFGrR9SS2eMf08TyS26v756mHn4GdjFsxIuTg8F+Irvxo9hWfCmsVY4S+pMkGWjQI5k5J2CmxJaK5JBfzBqNZxKXsxaZI37DjYihFTAfJz5CUdqSv1VykyLK+C/BlQMn4nlE517WZn1O6YbvQpWsdXK5iXI1MH+EK4p6XBFl/E02p7iSzn1ZN0ac03oSS1kXUb64GXOEc+FkJ3wc4U7RwlVn8hHWVX7dOfp+ccyhUQuKxDATiMswA/TyQFbk82E2NgKLuO//gWp2yv8o/1wM/gbL4XGIWp2PRdTsXDyiRmdjEmd4Pi5RuyA2H7TASeSohxpZirqfB43ieCpFc8DJjsXfifvxd9NYpvSpUub1aDcfUXQ7+Iiq9auOlp27UkfPogrm+x3ImYPDn+9+PMFWlohqj6qObJRMZP0qFDYT0GXM+HMlElClH0QfiaUWImdP26o00F2M6cfX3YOkzibNcuoF/N/pu1GcWgk9niolVdZf9booYMVJo43c7NeD2Ymsmk2dRnnlLHGNCRMc2qLp+1YJrdG1U9wbHnH9piYf6TVXosjSuYX+bZFl+06h7vBK/m0jN5GbZ2i10h7VORFY5MiFAvifD6DN7VgIFUkGBDEM4KoUVaEBz+KPb/EZN6bblsCrQq+4tk4HdQzbeKZ4rVdSbVILk5PbkpHfpWOb/qCtYP8H/4d5NaTleqEfWRawehSmUTVizw+cu2cMDh2l1SqzTl0kF73oWBTfUmA2RHsKFJxy9Im3ZC14IZR3nfeMzUubOaHXewmt5FvcEmoeiOJGe8+MiHhqPQAO8FywlrSTtAbM0ESWBDnMIrDOVV/LmqtdzFfPJIlXUWs1vhF4ZcBkSN0MFgRqR/sZtK92TnPiLW1O+EcqwWJVYaPqKmBU5t8qn3SxHayc7NgdwKXmN64pO3VKqTa+F4ZDl8Dd4wwuWm18ElcrqcpkdH/o+BaShnW9jaMtsGcXmAf4i/wAyO2+wIJ41KEkmUk77Spz3InZ4QqPoqxJiGnXruGwhofdEz4RySBTXbYeOrBl1UrwttZRC1dNLr+0iUFVD67BLPAs8xFgXy7pOpm1Ndq+cWERiL084JwDjpBQNp7ffU57ChRhmyz9fHVxPwCzl+UDRFcz9nBhpXM6tqhlhwSPYLq3IADtnFRd1I+C2tNlDxkWvk8Btj1SANrrAof6km4dgSv3d7qBSHS9DXntb9+fQOrz6t03h+6SikGwy+A1GYbkPzfssTpfLQaiuS83nRzpfMwZzK6qutyqTyK5khZgdc7IU2gHkzj6fUQ4rqFX3mzx25lRu6Ck9zu3/mirENB3GHM4xqiVXljSftrN0Wb9HO14EUWPlt/usseaYyd1s+7pfw==",
+        func = Expression.Evaluate(Text.FromBinary(Binary.Decompress(Binary.FromText(compressedCode), Compression.Deflate)), #shared)
+    in
+        func,
 
 ExampleTable = Table.Combine({Table.FirstN(func(2020, Date.Year(DateTime.LocalNow())), 1), Table.LastN(func(2020, Date.Year(DateTime.LocalNow())), 1)}),
 
