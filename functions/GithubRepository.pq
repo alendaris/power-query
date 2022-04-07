@@ -1,6 +1,7 @@
-(url as text) =>
+(input as any) =>
 
 let
+    url = if input = null then "https://api.github.com/repos/alendaris/power-query/contents" else if Type.Is(Value.Type(input),Record.Type) then "https://api.github.com/repos/" & input[owner] & "/" & input[repository] & "/contents" else input,
     Source = Json.Document(Web.Contents(url)),
     #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
     #"Expanded Column1" = Table.ExpandRecordColumn(#"Converted to Table", "Column1", {"name", "path", "sha", "size", "url", "html_url", "git_url", "download_url", "type", "_links"}, {"name", "path", "sha", "size", "url", "html_url", "git_url", "download_url", "type", "_links"}),
