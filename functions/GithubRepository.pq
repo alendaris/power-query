@@ -22,7 +22,7 @@ let
         in
             #"Removed Other Columns",
 
-    Directories = Table.AddColumn(Table.SelectColumns(Table.SelectRows(#"Expanded Column1", each ([type] = "dir")),{"url"}),"recurse", each GitRepository([url]))[recurse],
+    Directories = Table.AddColumn(Table.SelectColumns(Table.SelectRows(#"Expanded Column1", each ([type] = "dir")),{"url"}),"recurse", each GithubRepository([url]))[recurse],
     DownloadList = Table.Combine({Files,Table.Combine(Directories)})
 in
     DownloadList
