@@ -23,6 +23,23 @@ let
             #"Removed Other Columns",
 
     Directories = Table.AddColumn(Table.SelectColumns(Table.SelectRows(#"Expanded Column1", each ([type] = "dir")),{"url"}),"recurse", each GithubRepository([url]))[recurse],
-    DownloadList = Table.Combine({Files,Table.Combine(Directories)})
+    DownloadList = Table.Combine({Files,Table.Combine(Directories)}),
+    FunctionCollection = 
+        if input = null or Type.Is(Value.Type(input),Record.Type) then
+            let
+                newrecord = Record.FromTable(DownloadList),
+                Library = if Record.HasFields(newrecord, "Library Source Code") then
+                    [
+                        Library = newrecord,
+                        Source Code = newrecord[Library Source Code](newrecord)
+                    ]
+                    else
+                    [
+                        Library = newrecord
+                    ]
+            in  
+                Library
+        else
+            DownloadList
 in
-    DownloadList
+    FunctionCollection
