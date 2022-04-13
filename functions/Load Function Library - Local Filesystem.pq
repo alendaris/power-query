@@ -2,13 +2,13 @@
 let
     Source = Folder.Files(FolderPath),
     #"Removed Other Columns" = Table.SelectColumns(Source, {"Content", "Name"}),
-    #"Remove .pg" = Table.ReplaceValue(#"Removed Other Columns", ".pq", "", Replacer.ReplaceText, {"Name"}),
-    #"Pull Source Code" = Table.AddColumn("Remove .pq", "Source Code", each Text.Combine(Lines.FromBinary([Content]), "#(lf)")),
-    #"Generate Function" = Table.AddColumn("#Pull Source Code", "Function from File", each Expression.Evaluate([Source Code], #shared)),
-    #"Original Function Type" = Table.AddColumn(#"Generate Function", "Original Function Type", each Value.Type([Function From File])).
-    #"Add Source Code" = Table.AddColumn(#"Original Function Type", "Function Type Metadata with Source Code Added", each Record.AddField(Value.Metadata[Original Function Type]), "Source Code", [Source Code])),
-    #"Regenerate Function = Table.AddColumn(#"Add Source Code", "Value", each Value.ReplaceType([Function from File]), Value. ReplaceMetadata([Original Function Type], [Function Type Metadata with Source Code Added]))).
-    #"Removed Other Columns1" = Table.SelectCOlumns(#"Regenerate Function", {"Name", "Value"}),
+    #"Remove .pq" = Table.ReplaceValue(#"Removed Other Columns", ".pq", "", Replacer.ReplaceText, {"Name"}),
+    #"Pull Source Code" = Table.AddColumn(#"Remove .pq", "Source Code", each Text.Combine(Lines.FromBinary([Content]), "#(lf)")),
+    #"Generate Function" = Table.AddColumn(#"Pull Source Code", "Function from File", each Expression.Evaluate([Source Code], #shared)),
+    #"Original Function Type" = Table.AddColumn(#"Generate Function", "Original Function Type", each Value.Type([Function from File])),
+    #"Add Source Code" = Table.AddColumn(#"Original Function Type", "Function Type Metadata with Source Code Added", each Record.AddField(Value.Metadata([Original Function Type]), "Source Code", [Source Code])),
+    #"Regenerate Function" = Table.AddColumn(#"Add Source Code", "Value", each Value.ReplaceType([Function from File], Value.ReplaceMetadata([Original Function Type], [Function Type Metadata with Source Code Added]))),
+    #"Removed Other Columns1" = Table.SelectColumns(#"Regenerate Function", {"Name", "Value"}),
     newrecord = Record.FromTable(#"Removed Other Columns1"),
     Library = if Record.HasFields(newrecord, {"Library Source Code"}) then
         [
@@ -17,7 +17,7 @@ let
         ]
         else
         [
-            newrecord
+            Library = newrecord
         ]
 in
     Library
