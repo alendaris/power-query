@@ -20,7 +20,7 @@ let
     ThisFunctionName = findQueryByDocumentationName,
     envLocal = Record.Combine({#shared, [ThisFunctionName = ThisFunctionName]}),
 
-    func = (input as any) =>
+    func = (optional input as any) =>
 
         let
             url = if input = null then "https://api.github.com/repos/alendaris/power-query/contents" else if Type.Is(Value.Type(input),Record.Type) then "https://api.github.com/repos/" & input[owner] & "/" & input[repository] & "/contents" else input,
@@ -70,7 +70,7 @@ let
 
     funcType = type function
         (
-            input as (type any meta [
+            optional input as (type any meta [
                 Documentation.FieldCaption = "Input",
                 Documentation.FieldDescription = "Record with fields owner and repository to be accessed via Github's API. If not specified, will access a default repository",
                 Documentation.SampleValues = {""},
