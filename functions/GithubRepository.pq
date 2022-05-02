@@ -1,5 +1,5 @@
 let
-//Under Test
+
     FunctionName = "GithubRepository",
     DocumentationLongDescriptionBase = "This function accesses a Github repositry and returns all .pq and .m files as functions in a record format. ",
     DocumentationLongDescriptionComplete = 
