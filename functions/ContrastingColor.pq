@@ -9,9 +9,9 @@ let
             luminosity = 
                 0.2126 * Number.Power(Expression.Evaluate("0x" & Text.Middle(color, 1, 2))/255,gamma_use) + // Red
                 0.7152 * Number.Power(Expression.Evaluate("0x" & Text.Middle(color, 3, 2))/255,gamma_use) + // Green
-                0.0722 * Number.Power(Expression.Evaluate("0x" & Text.Middle(color, 5, 2))/255,gamma_use),  // Blue
+                0.0722 * Number.Power(Expression.Evaluate("0x" & Text.Middle(color, 5, 2))/255,gamma_use)  // Blue
         in
             luminosity,
-    font_color = if luminosity(backbround_color, gamma_use)>0.5 then dark_text_use else light_text_use
+    font_color = if luminosity(background_color, gamma_use)>0.5 then dark_text_use else light_text_use
 in
     font_color
