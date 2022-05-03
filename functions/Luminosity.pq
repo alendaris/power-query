@@ -8,7 +8,7 @@ let
                 0.7152 * Number.Power(Expression.Evaluate("0x" & Text.Middle(color, 3, 2))/255,gamma_use) + // Green
                 0.0722 * Number.Power(Expression.Evaluate("0x" & Text.Middle(color, 5, 2))/255,gamma_use)  // Blue
         in
-            luminosity
+            luminosity,
 
     ExampleResult = func("#FFCC72", 2.2),
 
