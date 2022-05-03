@@ -10,7 +10,7 @@ let
         in
             luminosity
 
-    ExampleResult = func("#FFCC72", 2.2)
+    ExampleResult = func("#FFCC72", 2.2),
 
     fntype = type function
         (
