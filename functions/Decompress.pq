@@ -10,7 +10,7 @@ let
 
     fntype = type function
         (
-            compressedText as (type Text meta [
+            compressedText as (type text meta [
                 Documentation.FieldCaption = "Compressed Text",
                 Documentation.FieldDescription = "Compressed Text to be expanded",
                 Documentation.SampleValues = {ExampleParameter}
