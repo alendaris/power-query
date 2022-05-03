@@ -26,7 +26,7 @@ let
         ) as text meta
             [
                 Documentation.Name = "Library Function Source Code",
-                Documentation.LongDescription = "This function extracts Source Code metadata, if present, from a specified element of a function library record.",
+                Documentation.LongDescription = "This function extracts Source Code metadata, if present, from a specified element of a function library record."
             ]
 
 in
