@@ -99,7 +99,7 @@ let
                             [FileName=ZipEntry[FileName][FileName], Content=ZipEntry[FileContent]]
             )
         in
-            Contents
+            Contents,
 
     fntype = type function
         (
