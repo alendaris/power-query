@@ -111,7 +111,7 @@ let
         ) as table meta
             [
                 Documentation.Name = "Unzip",
-                Documentation.LongDescription = "This function unzips a binary value. Code from https://community.powerbi.com/t5/Power-Query/How-to-connect-Azure-DevOps-REST-API-in-to-power-bi/m-p/895318/highlight/true#M30599 posted by Microsoft Power BI Community Forums Member artemus (https://community.powerbi.com/t5/user/viewprofilepage/user-id/62590)",
+                Documentation.LongDescription = "This function unzips a binary value. Code from https://community.powerbi.com/t5/Power-Query/How-to-connect-Azure-DevOps-REST-API-in-to-power-bi/m-p/895318/highlight/true#M30599 posted by Microsoft Power BI Community Forums Member artemus (https://community.powerbi.com/t5/user/viewprofilepage/user-id/62590)"
             ]
 
 in
