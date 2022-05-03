@@ -18,7 +18,7 @@ let
             font_color,
 
     ExampleParameter = "#FFCC72",
-    ExampleResult = func(ExampleParamter),
+    ExampleResult = func(ExampleParameter),
 
     fntype = type function
         (
