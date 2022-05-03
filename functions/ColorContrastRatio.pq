@@ -20,7 +20,7 @@ let
 
     ExampleParameter1 = "#FFCC72",
     ExampleParameter2 = "#000000",
-    ExampleResult = func(ExampleParamter1,ExampleParamter2),
+    ExampleResult = func(ExampleParameter1,ExampleParameter2),
 
     fntype = type function
         (
