@@ -5,7 +5,7 @@ let
         in
             Source,
 
-    ExampleParameter = Text.From(Binary.Compress(Text.ToBinary("https://github.com/alendaris/power-query"),Compression.Deflate))
+    ExampleParameter = Text.From(Binary.Compress(Text.ToBinary("https://github.com/alendaris/power-query"),Compression.Deflate)),
     ExampleResult = func(ExampleParameter),
 
     fntype = type function
