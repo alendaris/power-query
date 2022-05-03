@@ -5,7 +5,7 @@ let
         in
             Source,
 
-    ExampleParameter = "https://github.com/alendaris/power-query"
+    ExampleParameter = "https://github.com/alendaris/power-query",
     ExampleResult = func(ExampleParameter),
 
     fntype = type function
