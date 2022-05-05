@@ -23,7 +23,7 @@ let
                 Documentation.FieldDescription = "The name of the function to extract Source Code metadata from.",
                 Documentation.SampleValues = {"GenerateDateTable"}
             ])
-        ) as text meta
+        ) as any meta
             [
                 Documentation.Name = "Library Function Source Code",
                 Documentation.LongDescription = "This function extracts Source Code metadata, if present, from a specified element of a function library record."
