@@ -27,8 +27,8 @@ let
         (
             FolderPath as (type text meta [
                 Documentation.FieldCaption = "Folder Path",
-                Documentation.FieldDescription = "Folder path to the directory containing .pq files",
-                Documentation.SampleValues = {null}
+                Documentation.FieldDescription = "Folder path to the directory containing .pq files"/*,
+                Documentation.SampleValues = {null}*/
             ])
         ) as table meta
             [
