@@ -22,7 +22,7 @@ let
                 Documentation.FieldDescription = "The name of the function library record to extract source code from. Text values will be interpreted as the name of another query in this file.",
                 Documentation.SampleValues = {"Library"}
             ])
-        ) as table meta
+        ) as any meta
             [
                 Documentation.Name = "Library Source Code",
                 Documentation.LongDescription = "This function extracts Source Code metadata, if present, from the elements of a function library record. This function requires a function ""Library Function Source Code"" to be present within the library."
