@@ -86,13 +86,13 @@ fntype = type function
         ])
     ) as table meta
         [
-            Documentation.Name = "generateDateTable",
+            Documentation.Name = "GenerateDateTable",
             Documentation.LongDescription = "This function generates a date table from FromYear to ToYear with the following fields:#(cr)#(lf)" & Text.Combine(Record.FieldNames(Table.First(ExampleTable)), ", ") & ". For fiscal year calculations, StartofFiscalYear establishes the first month of the fiscal year.",
             Documentation.Examples =
             {
                 [
                     Description = "Create a list of dates from 2020 to the current year. Do not provide Fiscal Year columns.",
-                    Code = "generateDateTable(2020, Date.Year(DateTime.LocalNow()))",
+                    Code = "GenerateDateTable(2020, Date.Year(DateTime.LocalNow()))",
                     Result = TableToMCode(ExampleTable)
                 ]
             }
