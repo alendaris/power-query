@@ -34,7 +34,7 @@ let
                 Documentation.FieldDescription = "One of two colors to compare in the contrast ratio calculation.",
                 Documentation.SampleValues = {ExampleParameter2}
             ])
-        ) as text meta
+        ) as number meta
             [
                 Documentation.Name = "ColorContrastRatio",
                 Documentation.LongDescription = "This function calculates the Color Contrast Ratio between the lighter color and the darker color.",
@@ -43,7 +43,7 @@ let
                     [
                         Description = "Determine the color contrast ratio between #FFCC72 and #000000.",
                         Code = "ColorContrastRatio(""#FFCC72"", ""#000000"")",
-                        Result = ExampleResult
+                        Result = Text.From(ExampleResult)
                     ]
                 }
             ]
