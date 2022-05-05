@@ -10,7 +10,8 @@ let
         in
             luminosity,
 
-    ExampleResult = func("#FFCC72", 2.2),
+    //ExampleResult = func("#FFCC72", 2.2),
+    ExampleResult = func("#0000FF", 2.2),
 
     fntype = type function
         (
@@ -33,7 +34,7 @@ let
                     [
                         Description = "Determine the luminosity of pure blue (#0000FF).",
                         Code = "Luminosity(""#0000FF"")",
-                        Result = ExampleResult
+                        Result = 0.0722
                     ]
                 }
             ]
