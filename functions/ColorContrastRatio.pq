@@ -41,8 +41,8 @@ let
                 Documentation.Examples =
                 {
                     [
-                        Description = "Determine the color contrast ratio between " & ExampleParameter1 & " and " & ExampleParameter2 & ".",
-                        Code = "ColorContrastRatio(""" & ExampleParameter1 & """, """ & ExampleParameter2 & """)",
+                        Description = "Determine the color contrast ratio between #FFCC72 and #000000.",
+                        Code = "ColorContrastRatio(""#FFCC72"", ""#000000"")",
                         Result = ExampleResult
                     ]
                 }
