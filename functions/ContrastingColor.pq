@@ -42,7 +42,7 @@ let
                 Documentation.FieldDescription = "Gamma value to use for luminosity calculations.",
                 Documentation.SampleValues = {2.2}
             ])            
-        ) as table meta
+        ) as text meta
             [
                 Documentation.Name = "Contrasting Color",
                 Documentation.LongDescription = "This function provides for a given background color a light or dark text value as appropriate contrast.",
