@@ -23,7 +23,7 @@ let
                 {
                     [
                         Description = "Decompress a compressed string.",
-                        Code = "func(""" & ExampleParameter & """)",
+                        Code = "Decompress(""" & ExampleParameter & """)",
                         Result = ExampleResult
                     ]
                 }
