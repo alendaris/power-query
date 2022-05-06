@@ -25,7 +25,7 @@ let
                 Documentation.FieldDescription = "Gamma value for the luminosity calculation (default: 2.2)",
                 Documentation.SampleValues = {2.2}
             ])
-        ) as table meta
+        ) as number meta
             [
                 Documentation.Name = "Luminosity",
                 Documentation.LongDescription = "This function calculates a luminosity value for a given hexadecimal color.",
@@ -34,7 +34,7 @@ let
                     [
                         Description = "Determine the luminosity of pure blue (#0000FF).",
                         Code = "Luminosity(""#0000FF"")",
-                        Result = 0.0722
+                        Result = Text.From(0.0722)
                     ]
                 }
             ]
