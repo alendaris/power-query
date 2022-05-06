@@ -30,7 +30,7 @@ let
                 Documentation.FieldDescription = "Folder path to the directory containing .pq files"/*,
                 Documentation.SampleValues = {null}*/
             ])
-        ) as table meta
+        ) as any meta
             [
                 Documentation.Name = "Load Function Library - Local Filesystem",
                 Documentation.LongDescription = "This function loads .pq files from a local directory and generates a function library record. If one of the files is called ""Library Source Code.pq"", the contents of each file will be stored as metadata."
