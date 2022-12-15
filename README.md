@@ -14,7 +14,7 @@ A library of Power Query functions & other reference material.
 |Load Function Library - Local Filesystem|Loads queires stored as .pq files from a given folder path.|
 |Luminosity|Calculated the Luminosity of a color value.|
 |TableCleanFieldNames|Cleans Field Names of a table to be Proper Case instead of cammelCase or snake_case.|
-|TableDataQualityProfile| |
+|TableDataQualityProfile|Reviews data in a table and determines a basic description of the data.|
 |TableToMCode|Converts a simple table to equivalent M code. Credit: ImkeF|
 |Unzip|Unzip the binary of a .zip file.|
 |ValueToMCode|Converts nearly any type of value into equivalent M code.|
