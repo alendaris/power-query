@@ -12,11 +12,8 @@ let
     type function (
         image as (type binary meta [
             Documentation.FieldCaption = "Image",
-            Documentation.FieldDescription = "The binary image to convert",
-            Documentation.SampleValues = {
-                /* Add some sample binary image values here */
-            ]
-        ]),
+            Documentation.FieldDescription = "The binary image to convert"
+        ]))
         as (type text meta [
             Documentation.Name = "BinaryImageToURI",
             Documentation.LongDescription = "Converts a binary image to a Data URI representation",
@@ -26,9 +23,8 @@ let
                     Code = "BinaryImageToURI(binaryImage)",
                     Result = "data:image/png;base64,<base64-encoded-image>"
                 ]
-            ]
-        ])
-    ),
+            }
+        ]),
     BinaryImageToURI = 
     (image as binary) as text =>
     let
@@ -39,5 +35,3 @@ let
         dataURI
 in
     Value.ReplaceType(BinaryImageToURI, BinaryImageToURIType)
-
-
