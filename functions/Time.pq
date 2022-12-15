@@ -1,20 +1,27 @@
 let
-    // Create a list of times
-    timeList = List.Generate(
-        () => #time(0, 0, 0),
-        each minute([Value]) < 1440,
-        each #time([Value] + #duration(0, 0, 1, 0)),
-        each [Value]
-    ),
-    // Create a table with a time column
-    source = Table.FromList(timeList, type table [Time = time]),
-    // Add a column for the hour in 12-hour format
-    add12HourColumn = Table.AddColumn(source, "Hour (12h)", each hour([Time]), type number),
+    // Define a start time and an end time for the table
+    StartTime = #time(0, 0, 0),
+
+    // Generate a list of all the times between the start time and end time
+    TimeList = List.Times(StartTime, 24*60*60, #duration(0, 0, 1, 0)),
+
+    // Convert the list of times to a table
+    TimeTable = Table.FromList(TimeList, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+
     // Add a column for the hour in 24-hour format
-    add24HourColumn = Table.AddColumn(add12HourColumn, "Hour (24h)", each hour24([Time]), type number),
+    Hour24 = Table.AddColumn(TimeTable, "Hour (24)", each Date.Hour([Column1])),
+
+    // Add a column for the hour in 12-hour format
+    Hour12 = Table.AddColumn(Hour24, "Hour (12)", each if #["Hour (24)"] = 0 then 12 else if #["Hour (24)"] > 12 then #["Hour (24)"] - 12 else #["Hour (24)"]),
+
+    // Add a column for the AM/PM notation
+    AmPm = Table.AddColumn(Hour12, "AM/PM", each if #["Hour (24)"] < 12 then "AM" else "PM"),
+
+    // Add a column for the hour and AM/PM notation in the format "H AM/PM"
+    HourAmPm = Table.AddColumn(AmPm, "Hour AM/PM", each Text.Combine({#["Hour (12)"], " ", [AM/PM]}), type text),
+
     // Add a column for the minute
-    addMinuteColumn = Table.AddColumn(add24HourColumn, "Minute", each minute([Time]), type number),
-    // Add a column for AM/PM
-    addAMPMColumn = Table.AddColumn(addMinuteColumn, "AM/PM", each "AM/PM"[Time], type text)
+    Minute = Table.AddColumn(HourAmPm, "Minute", each Date.Minute([Column1]))
 in
-    addAMPMColumn
+    // Return the resulting table
+    Minute
