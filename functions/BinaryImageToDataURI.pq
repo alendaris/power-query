@@ -7,14 +7,14 @@
  * @return         The Data URI representation of the binary image.
  */
  
-llet
+let
     BinaryImageToDataURIType = type function (
         image as (type binary meta [
             Documentation.FieldCaption = "Image",
             Documentation.FieldDescription = "Binary representation of the image to be converted to a data URI",
             Documentation.SampleValues = { #binary("iVBORw0KGg==") }
         ])
-    ) as (type text meta [
+    ) as text meta [
         Documentation.Name = "Binary Image To Data URI",
         Documentation.LongDescription = "Converts a binary image to a data URI",
         Documentation.Examples = {[
@@ -22,7 +22,7 @@ llet
             Code = "BinaryImageToDataURI(#binary(""iVBORw0KGg==""))",
             Result = "data:image/png;base64,iVBORw0KGg=="
         ]}
-    ])
+    ],
     
     BinaryImageToDataURI = 
     (image as binary) as text =>
