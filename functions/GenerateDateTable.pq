@@ -58,14 +58,31 @@ func = (FromYear as number, ToYear as number, optional StartofFiscalYear as numb
     in
         #"Changed Type4",
 
-TableToMCode = 
-    let
-        compressedCode = "zVTRatswFH33V1xUCDYYbXkdTaF1Eyg0HaShLyEU1b5OzGQpk+QlIeRf8i35sklynMbOBnucDbZ879HRuefK4mggr0QKAwAIIJyyD47ANBg3iGBwF3A0wfFwPPjU8TA4jWIffC60+Z4nklel0J9JOpUTudY1XVRDEyl+oTJT2SGiIyVLxxN6WHO3mOPjoZV8XfHCGFTUDx62L9IsC7EIoy5QVJz/S2y4MYq9MV6hpkOlpDpnz+oVvhplF7lQfp9ltcC29Hal3aVIUmkjS9KNI0uXlhg3hiay/CgEhs4DOlVM6FyqMpzVi/XncYMucni3rXMVgVmiAOKGBJBrBGIv6IFnnOCKsxRD/+EMD9+j2AH8g5DIAv3bUpMYSNStf2R5L+onA7jxWySEnZ12Rvc6FdQ+1bpfWInnLWEpiFuIXCzV88F9DDchzyPYWeq/En/2Y1b76Uy5mNuh3cMeIiBBITrVxEEm06pEYZgppLBmzoLHywh1st3vQaDZ2uNEZtbeuAN8RJ2qYnWisfCmcRoYwG1qJ915itsvfgxgpM1orwNkDmNwcdtIZmBd2JamCpk5BbzbUAjXZ/hZodoCZoWRil4reZZi8f+oSeyshbSIQePhNeZVVipFj7hOvqHSTRl9+pX2ryH3lVlK5RFP5Q+EEfKsZEJ8g/V6TadLfHhKU1lZuDA0lSX8Qedww8oVR21ZdrO2fSdZvu+NxgnqipvT53w/D9wBah2xT/AnSfPTTbcrDN0hG7fjYzQsY4aFdfQMi2Jo7ckoCn4D",
-        func = Expression.Evaluate(Text.FromBinary(Binary.Decompress(Binary.FromText(compressedCode), Compression.Deflate)), #shared)
-    in
-        func,
+    TableToMCode = 
+        (value as table) as text =>
+        let
+            ListOfColumns = Table.ToRows(value),
+            ConvertToTable = Table.FromList(
+                ListOfColumns, 
+                Splitter.SplitByNothing(), 
+                null, 
+                null, 
+                ExtraValues.Error
+            ),
+            CoreString = Table.AddColumn(
+                ConvertToTable, 
+                "Custom", 
+                each Text.Combine(List.Transform([Column1], each if _ = null then "null" else """" & Text.Replace(Text.From(_),"""","""""") & """"), ", ")
+            ),
+            FullString = "= #table( {"""
+                & Text.Combine(Table.ColumnNames(value), """, """)
+                & """}, #(lf) { {"
+                & Text.Combine(CoreString[Custom], "}, #(lf) {")
+                & "} } ) "
+        in
+            FullString,
 
-ExampleTable = Table.Combine({Table.FirstN(func(2020, Date.Year(DateTime.LocalNow())), 1), Table.LastN(func(2020, Date.Year(DateTime.LocalNow())), 1)}),
+    ExampleTable = Table.Combine({Table.FirstN(func(2020, Date.Year(DateTime.LocalNow())), 1), Table.LastN(func(2020, Date.Year(DateTime.LocalNow())), 1)}),
 
 fntype = type function
     (
