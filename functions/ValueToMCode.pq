@@ -63,7 +63,7 @@ let
                 firstindent & "null",
 
             LogicalToMCode = (value as logical) as text =>
-                firstindent & (if value then "TRUE" else "FALSE"),
+                firstindent & (if value then "true" else "false"),
 
             TextToMCode = (value as text) as text =>
                 firstindent & """" & Text.Replace(value,"""","""""") & """",
@@ -86,22 +86,79 @@ let
             DurationToMCode = (value as duration) as text =>
                 firstindent & "#duration(" & Text.From(Duration.Days(value)) & "," & Text.From(Duration.Hours(value)) & "," & Text.From(Duration.Minutes(value)) & "," & Text.From(Duration.Seconds(value)) & ")",
 
+            TypeToMCode = (value as type) as text =>
+                Table.SingleRow(Table.Schema(#table(type table [Col1 = value], {})))[TypeName],
+
+            // Determines if a value is Complex:
+            // Tables, Functions, and Binary are complex
+            // Records are complex if they have complex field values or more than 2 field values
+            // Lists are complex if they have any complex values or if all values are either complex or lists or records
+            // Complex values should require additional lines & formatting, while non-complex values should be legible inline
+            isComplex = 
+                (value as any) as logical =>
+                let
+                    ValueToKind = 
+                        (value as any) =>
+                        let 
+                            Kind = Table.SingleRow(Table.Schema(#table(type table [Col1 = Value.Type(value)], {})))[Kind]
+                        in
+                            Kind,
+                    kind = ValueToKind(value),
+                    hasComplexChildren = 
+                        (children as list) as logical => 
+                        let
+                            result = List.AnyTrue(List.Transform(children, each @isComplex(_)))
+                        in
+                            result,
+                    hasAllComplexImmediateChildren = 
+                        (children as list) as logical => 
+                        let
+                            result = List.AllTrue(List.Transform(children, each List.Contains({"list","record","table","binary","function"},ValueToKind(_))))
+                        in
+                            result,
+                    isValueComplex = 
+                        if not List.Contains({"list","record","table","binary","function"},kind) then 
+                            false
+                        else if kind = "list" then
+                            let
+                                children = value
+                            in
+                                hasComplexChildren(children) or hasAllComplexImmediateChildren(children)
+                        else if kind = "record" then
+                            let
+                                children = Record.FieldValues(value)
+                            in
+                                hasComplexChildren(children) or Record.FieldCount(value)>2
+                        else
+                            true
+                in
+                    isValueComplex,
+
             newline = "#(cr)#(lf)",
 
             ListToMCode = (value as list) as text =>
                 let 
-                    Source = Table.FromList(value,Splitter.SplitByNothing(), null, null, ExtraValues.Error),
-                    AddedEntryMCode = Table.AddColumn(Source, "MCode", each @ValueToMCode([Column1])),
                     Result = 
-                        firstindent & "{" & newline &
-                        Text.Combine(
-                            List.Transform(
-                                value,
-                                each @ValueToMCode(_,indentTabs+1)
-                            ),
-                            "," & newline
-                        ) &
-                        newline & indent & "}"
+                        if isComplex(value) then 
+                            firstindent & "{" & newline &
+                            Text.Combine(
+                                List.Transform(
+                                    value,
+                                    each @ValueToMCode(_,indentTabs+1)
+                                ),
+                                "," & newline
+                            ) &
+                            newline & indent & "}"
+                        else
+                            firstindent & "{" &
+                            Text.Combine(
+                                List.Transform(
+                                    value,
+                                    each @ValueToMCode(_,indentTabs+1,[supressIndent = true])
+                                ),
+                                ", "
+                            ) &
+                            "}"
                 in 
                     Result,
 
@@ -109,36 +166,84 @@ let
                 let 
                     fields = Record.FieldNames(value),
                     Result = 
-                        firstindent & "[" & newline &
-                        Text.Combine(
-                            List.Transform(
-                                fields,
-                                each 
-                                    indent & "    " & Expression.Identifier(_) & " = " & 
-                                    @ValueToMCode(Record.Field(value,_), indentTabs+2, [supressIndent = true])
-                            ),
-                            "," & newline
-                        ) &
-                        newline & indent & "]"
+                        if isComplex(value) then
+                            firstindent & "[" & newline &
+                            Text.Combine(
+                                List.Transform(
+                                    fields,
+                                    each 
+                                        indent & "    " & Expression.Identifier(_) & " = " & 
+                                        @ValueToMCode(Record.Field(value,_), indentTabs+2, [supressIndent = true])
+                                ),
+                                "," & newline
+                            ) &
+                            newline & indent & "]"
+                        else
+                            firstindent & "[" &
+                            Text.Combine(
+                                List.Transform(
+                                    fields,
+                                    each 
+                                        Expression.Identifier(_) & " = " & 
+                                        @ValueToMCode(Record.Field(value,_), indentTabs+1, [supressIndent = true])
+                                ),
+                                ", "
+                            ) &
+                            "]"
                 in 
                     Result,
 
             TableToMCode = (value as table) as text =>
                 let 
-                    headers = @ValueToMCode(Table.ColumnNames(value), indentTabs+1),
-                    rows = Text.Combine(
-                        List.Transform(
-                            Table.ToRows(value),
-                            each @ValueToMCode(_,indentTabs+2)
+
+                    IdentifyColumnType = 
+                        (column as list) as type =>
+                        let 
+                            Source = column,
+                            #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+                            #"Filtered Rows2" = Table.SelectRows(#"Converted to Table", each [Column1]<> null and [Column1] <> ""),
+                            NonEmptyValues = List.Count(#"Filtered Rows2"[Column1]),
+                            #"Added Custom" = Table.AddColumn(#"Filtered Rows2", "Type Check", each #table({"Type Name","Type","Check"},{
+                                {"list", type list, each try (_ is list) otherwise false},
+                                {"record", type record, each try (_ is record) otherwise false},
+                                {"table", type table, each try (_ is table) otherwise false},
+                                {"binary", type binary, each try (_ is binary) otherwise false},
+                                {"function", type function, each try (_ is function) otherwise false},
+                                {"date", Date.Type, each try Text.From(_)=Text.From(Date.From(_)) otherwise false},
+                                {"datetime", DateTime.Type, each try Text.From(_)=Text.From(DateTime.From(_)) otherwise false},
+                                {"datetimezone", DateTimeZone.Type, each try Text.From(_)=Text.From(DateTimeZone.From(_)) otherwise false},
+                                {"duration", Duration.Type, each try Text.From(_)=Text.From(Duration.From(_)) otherwise false},
+                                {"logical", Logical.Type, each try Text.From(_)=Text.From(Logical.From(_)) otherwise false},
+                                {"integer", Int64.Type, each try Text.From(_)=Text.From(Int64.From(_)) otherwise false},
+                                {"number", Number.Type, each try Text.From(_)=Text.From(Number.From(_)) otherwise false},
+                                {"time", Time.Type, each try Text.From(_)=Text.From(Time.From(_)) otherwise false},
+                                {"text", Text.Type, each try Text.From(_)=Text.From(Text.From(_)) otherwise false}
+                            })),
+                            #"Expanded Type Check" = Table.ExpandTableColumn(#"Added Custom", "Type Check", {"Type Name", "Type", "Check"}, {"Type Check.Type Name", "Type Check.Type", "Type Check.Check"}),
+                            #"Added Custom1" = Table.AddColumn(#"Expanded Type Check", "Check Result", each [Type Check.Check]([Column1])),
+                            #"Filtered Rows" = Table.SelectRows(#"Added Custom1", each ([Check Result] = true)),
+                            #"Grouped Rows" = Table.Group(#"Filtered Rows", {"Type Check.Type Name", "Type Check.Type"}, {{"Count", each Table.RowCount(_), Int64.Type},{"Data", each [Column1]}}),
+                            #"Replaced Value" = Table.ReplaceValue(#"Grouped Rows", each [Type Check.Type], each if [Type Check.Type Name] = "datetime" and (if [Type Check.Type Name]<>"datetime" then null else (let times = List.Distinct(List.Sort(List.Transform(List.RemoveNulls([Data]), each Time.From(_)))), first = times{0} in List.Count(times)=1 and first = #time(0,0,0) )) then Date.Type else [Type Check.Type],Replacer.ReplaceValue,{"Type Check.Type"}),
+                            #"Filtered Rows1" = Table.SelectRows(#"Replaced Value", each ([Count] = NonEmptyValues)),
+                            Custom1 = try #"Filtered Rows1"{0}[Type Check.Type] otherwise Any.Type 
+                        in 
+                            Custom1,
+                    
+                    headers = 
+                        indent & "    type table " & 
+                        @ValueToMCode(
+                            Record.FromList(
+                                List.Transform(Table.ColumnNames(value), each IdentifyColumnType(Table.Column(value,_))),
+                                Table.ColumnNames(value)
+                            ),
+                            indentTabs+1,
+                            [supressIndent = true]
                         ),
-                        "," & newline
-                    ),
+                    rows = @ValueToMCode(Table.ToRows(value),indentTabs+1,[supressIndent = false]),
                     Result = 
                         firstindent & "#table(" & newline &
                         headers & "," & newline &
-                        indent & "    {" & newline &
                         rows & newline &
-                        indent & "    }" & newline &
                         indent & ")"
                 in 
                     Result,
@@ -147,15 +252,15 @@ let
                 firstindent & "Binary.Decompress(Binary.FromText(" & @ValueToMCode(Text.From(Binary.Compress(value,Compression.Deflate))) & "),Compression.Deflate)",
 
             FunctionToMCode = (value as function) as text =>
-                if Record.HasFields(Value.Metadata(Value.Type(value)),"Source Code") then
+                if Record.HasFields(Value.Metadata(Value.Type(value)),"Source Code") or Record.HasFields(Value.Metadata(value),"Source Code") then
                     let  
                         Source = Value.Metadata(Value.Type(value))[Source Code],
                         Deflated = Text.From(Binary.Compress(Text.ToBinary(Source),Compression.Deflate)),
-                        Reinflate = firstindent & "Text.FromBinary(Binary.Decompress(Binary.FromText(" & TextToMCode(Deflated) & "),Compression.Deflate))"
+                        Reinflate = firstindent & "Text.FromBinary(Binary.Decompress(Binary.FromText(" & TextToMCode(Deflated) & "),Compression.Deflate))"  // TODO: Add the function Source Code back into the function
                     in  
                         Reinflate
                 else
-                    firstindent & "/* Function without Source Code Metadata */null",
+                    error "Can only convert functions to M Code if the source code is included as metadata on the function as Source Code",//firstindent & "/* Function without Source Code Metadata */null",
 
             Return = 
                 let 
@@ -174,6 +279,7 @@ let
                         else if Value.Is(value,Logical.Type) then LogicalToMCode(value)
                         else if Value.Is(value,Null.Type) then NullToMCode(value)
                         else if Value.Is(value,Binary.Type) then BinaryToMCode(value)
+                        else if value is type then TypeToMCode(value)
                         else 
                             let 
                                 Attempt = try Text.From(value),
