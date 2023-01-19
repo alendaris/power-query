@@ -11,7 +11,7 @@ let
                 Source = column,
                 #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
                 #"Filtered Rows2" = Table.SelectRows(#"Converted to Table", each [Column1]<> null and [Column1] <> ""),
-                NonEmptyValues = List.Count([Column1]),
+                NonEmptyValues = List.Count(#"Filtered Rows2"[Column1]),
                 #"Added Custom" = Table.AddColumn(#"Filtered Rows2", "Type Check", each #table({"Type Name","Type","Check"},{
                     {"date", Date.Type, each try Text.From(_)=Text.From(Date.From(_)) otherwise false},
                     {"datetime", DateTime.Type, each try Text.From(_)=Text.From(DateTime.From(_)) otherwise false},
