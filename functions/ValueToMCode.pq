@@ -8,12 +8,12 @@ let
         optional indentStart as (type number meta [
             Documentation.FieldCaption = "Indentation Start",
             Documentation.FieldDescription = "The number of tabs to use for indentation at the beginning of the string",
-            Documentation.AllowedValues = {0, 1, 2, 3, 4}
+            Documentation.SampleValues = {0, 1, 2, 3, 4}
         ]),
         optional options as (type record meta [
             Documentation.FieldCaption = "Options",
             Documentation.FieldDescription = "Options for the conversion"/*,
-            Documentation.AllowedValues = {[supressIndent=true], [supressIndent=false]}*/
+            Documentation.SampleValues = {[supressIndent=true], [supressIndent=false]}*/
         ]))
         as any meta [
             Documentation.Name = "ValueToMCode",
@@ -90,10 +90,11 @@ let
                 Table.SingleRow(Table.Schema(#table(type table [Col1 = value], {})))[TypeName],
 
             // Determines if a value is Complex:
-            // Tables, Functions, and Binary are complex
+            // Tables, Functions, and Binary are always treated as complex
             // Records are complex if they have complex field values or more than 2 field values
             // Lists are complex if they have any complex values or if all values are either complex or lists or records
-            // Complex values should require additional lines & formatting, while non-complex values should be legible inline
+            // All others should be simple primitive values
+            // Complex values should generally be broken up with additional lines and indentation, while non-complex values should be okay if inline
             isComplex = 
                 (value as any) as logical =>
                 let
