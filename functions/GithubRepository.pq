@@ -39,7 +39,7 @@ let
                     #"Added Custom1" = Table.AddColumn(#"Replaced Value2", "Function from URL", each Expression.Evaluate([Source Code],#shared)),
                     #"Added Custom2" = Table.AddColumn(#"Added Custom1", "Original Function Type", each Value.Type([Function from URL])),
                     #"Added Custom3" = Table.AddColumn(#"Added Custom2", "Function Type Metadata with Source Code Added", each Record.AddField(Value.Metadata([Original Function Type]), "Source Code", [Source Code])),
-                    #"Added Custom4" = Table.AddColumn(#"Added Custom3", "Value", each Value.ReplaceType([Function from URL],Value.ReplaceMetadata([Original Function Type], [Function Type Metadata with Source Code Added]))),
+                    #"Added Custom4" = Table.AddColumn(#"Added Custom3", "Value", each Value.ReplaceType([Function from URL],Value.ReplaceMetadata([Original Function Type], [Function Type Metadata with Source Code Added])) meta [#"Source Code" = [Source Code]]),
                     #"Removed Other Columns" = Table.SelectColumns(#"Added Custom4",{"Name", "Value"})
                 in
                     #"Removed Other Columns",
