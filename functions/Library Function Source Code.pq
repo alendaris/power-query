@@ -7,7 +7,7 @@ let
                 else
                     LibraryName,
             func = Record.Field(library,functionName),
-            code = "// " & functionName & "#(cr)#(lf)#(cr)#(lf)" & Value.Metadata(Value.Type(func))[Source Code]
+            code = "// " & functionName & "#(cr)#(lf)#(cr)#(lf)" & Value.Metadata(func)[Source Code]
         in
             code,
 
