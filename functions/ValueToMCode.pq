@@ -255,9 +255,9 @@ let
             FunctionToMCode = (value as function) as text =>
                 if Record.HasFields(Value.Metadata(Value.Type(value)),"Source Code") or Record.HasFields(Value.Metadata(value),"Source Code") then
                     let  
-                        Source = Value.Metadata(Value.Type(value))[Source Code],
+                        Source = Record.FieldOrDefault(Value.Metadata(Value.Type(value)),"Source Code",Value.Metadata(value)[Source Code]),
                         Deflated = Text.From(Binary.Compress(Text.ToBinary(Source),Compression.Deflate)),
-                        Reinflate = firstindent & "Text.FromBinary(Binary.Decompress(Binary.FromText(" & TextToMCode(Deflated) & "),Compression.Deflate))"  // TODO: Add the function Source Code back into the function
+                        Reinflate = firstindent & "Expression.Evaluate(Text.FromBinary(Binary.Decompress(Binary.FromText(" & TextToMCode(Deflated) & "),Compression.Deflate)),#shared)"
                     in  
                         Reinflate
                 else
@@ -288,7 +288,17 @@ let
                             in 
                                 if Expression.Evaluate(Return)=value then Return else error "Unable to convert to M Code"
                 in 
-                    Return
+                    if Record.FieldCount(Value.Metadata(value)) > 0 then
+                        Return & " meta " & 
+                        (let  
+                            metadata = Value.Metadata(value),
+                            Source = @ValueToMCode(metadata),
+                            Deflated = Text.From(Binary.Compress(Text.ToBinary(Source),Compression.Deflate)),
+                            Reinflate = firstindent & "Expression.Evaluate(Text.FromBinary(Binary.Decompress(Binary.FromText(" & TextToMCode(Deflated) & "),Compression.Deflate)))"
+                        in  
+                            Source)
+                    else
+                        Return
         in 
             Return
 in

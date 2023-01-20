@@ -8,7 +8,7 @@ let
             #"Generate Function" = Table.AddColumn(#"Pull Source Code", "Function from File", each Expression.Evaluate([Source Code], #shared)),
             #"Original Function Type" = Table.AddColumn(#"Generate Function", "Original Function Type", each Value.Type([Function from File])),
             #"Add Source Code" = Table.AddColumn(#"Original Function Type", "Function Type Metadata with Source Code Added", each Record.AddField(Value.Metadata([Original Function Type]), "Source Code", [Source Code])),
-            #"Regenerate Function" = Table.AddColumn(#"Add Source Code", "Value", each Value.ReplaceType([Function from File], Value.ReplaceMetadata([Original Function Type], [Function Type Metadata with Source Code Added]))),
+            #"Regenerate Function" = Table.AddColumn(#"Add Source Code", "Value", each Value.ReplaceType([Function from File], Value.ReplaceMetadata([Original Function Type], [Function Type Metadata with Source Code Added])) meta [#"Source Code" = [Source Code]]),
             #"Removed Other Columns1" = Table.SelectColumns(#"Regenerate Function", {"Name", "Value"}),
             newrecord = Record.FromTable(#"Removed Other Columns1"),
             Library = if Record.HasFields(newrecord, {"Library Source Code"}) then
