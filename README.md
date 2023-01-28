@@ -23,4 +23,4 @@ A library of Power Query functions & other reference material.
 
 |Data File|Description|Source
 |:---|:---|
-|||https://unstats.un.org/unsd/methodology/m49/overview/#ENG_Overview
+|UNSD — Methodology.csv|Standard country or area codes for statistical use (M49)|https://unstats.un.org/unsd/methodology/m49/overview/#ENG_Overview
