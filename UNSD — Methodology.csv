@@ -123,8 +123,8 @@
 001;World;142;Asia;143;Central Asia;;;Turkmenistan;795;TM;TKM;;x;
 001;World;142;Asia;143;Central Asia;;;Uzbekistan;860;UZ;UZB;;x;
 001;World;142;Asia;030;Eastern Asia;;;China;156;CN;CHN;;;
-001;World;142;Asia;030;Eastern Asia;;;China, Hong Kong Special Administrative Region;344;HK;HKG;;;
-001;World;142;Asia;030;Eastern Asia;;;China, Macao Special Administrative Region;446;MO;MAC;;;
+001;World;142;Asia;030;Eastern Asia;;;Hong Kong Special Administrative Region;344;HK;HKG;;;
+001;World;142;Asia;030;Eastern Asia;;;Macao Special Administrative Region;446;MO;MAC;;;
 001;World;142;Asia;030;Eastern Asia;;;Democratic People's Republic of Korea;408;KP;PRK;;;
 001;World;142;Asia;030;Eastern Asia;;;Japan;392;JP;JPN;;;
 001;World;142;Asia;030;Eastern Asia;;;Mongolia;496;MN;MNG;;x;
