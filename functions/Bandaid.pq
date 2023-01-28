@@ -38,12 +38,13 @@
     reportBandaidSingle = (value as any) =>
         try Table.FromRecords(Value.Metadata(value)[bandaid]) otherwise null,
 
-    reportBandaids = (optional environment as record) as any =>
+    reportBandaids = (optional environment as record, optional exclude as any) as any =>
         let
             env = environment ?? #sections[Section1],
-            Source = env,
+            except = if exclude = null then {} else if exclude is text then {exclude} else exclude,
+            Source = Record.RemoveFields(env,except),
             #"Converted to Table" = Record.ToTable(Source),
-            #"Added Custom" = try bandaid[combine](#"Converted to Table"[Value])[bandaid] otherwise null,
+            #"Added Custom" = try Bandaid[combine](#"Converted to Table"[Value])[bandaid] otherwise null,
             bandaidTable = Table.FromRecords(#"Added Custom")
         in
             bandaidTable
