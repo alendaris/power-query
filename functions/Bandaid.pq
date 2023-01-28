@@ -14,7 +14,7 @@
 //
 // To generate a table of all bandaids, you can use:
 //   bandaid[report](environment)
-//  By default, this will poll #sections[Section1], excluding any query named bandaid (for obvious reasons)
+//  By default, this will poll #sections[Section1]
 //
 
 [
@@ -24,6 +24,7 @@
                 [comment = comment, query = query, step = step]
             }
         ],
+
     combine = (values as list) =>
         let
             bandaids = List.Combine(List.RemoveNulls(List.Transform(values, each Value.Metadata(_)[bandaid]?)))
@@ -31,7 +32,19 @@
             [
                 bandaid = bandaids
             ],
-    // TODO: Update report to poll Section1 instead of just taking 1 value
-    report = (value as any) =>
-        try Table.FromRecords(Value.Metadata(value)[bandaid]) otherwise null
+    
+    report = reportBandaids,
+
+    reportBandaidSingle = (value as any) =>
+        try Table.FromRecords(Value.Metadata(value)[bandaid]) otherwise null,
+
+    reportBandaids = (optional environment as record) as any =>
+        let
+            env = environment ?? #sections[Section1],
+            Source = env,
+            #"Converted to Table" = Record.ToTable(Source),
+            #"Added Custom" = try bandaid[combine](#"Converted to Table"[Value])[bandaid] otherwise null,
+            bandaidTable = Table.FromRecords(#"Added Custom")
+        in
+            bandaidTable
 ]
