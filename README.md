@@ -22,5 +22,5 @@ A library of Power Query functions & other reference material.
 |ValueTypeToText|Converts the type of a value into text.|
 
 |Data File|Description|Source|
-|:---|:---|
+|:---|:---|:---|
 |UNSD — Methodology.csv|Standard country or area codes for statistical use (M49)|https://unstats.un.org/unsd/methodology/m49/overview/#ENG_Overview
