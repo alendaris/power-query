@@ -20,3 +20,7 @@ A library of Power Query functions & other reference material.
 |Unzip|Unzip the binary of a .zip file.|
 |ValueToMCode|Converts nearly any type of value into equivalent M code.|
 |ValueTypeToText|Converts the type of a value into text.|
+
+|Data File|Description|Source
+|:---|:---|
+|||https://unstats.un.org/unsd/methodology/m49/overview/#ENG_Overview
