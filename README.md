@@ -4,7 +4,7 @@ A library of Power Query functions & other reference material.
 
 |Function|Description|
 |:---|:---|
-|Bandaid|Adds metadata to values to track assumptions made|
+|Bandaid|Adds metadata to values to track assumptions made.|
 |BinaryImageToDataURI|Converts a binary image to a Data URI representation.|
 |Compress|Performs the compression steps that PQ uses when generating the Source string for queries created from the Enter Data functionality.|
 |ContrastingColor|Given a background color, determine if light or dark text should be used as a foreground text color.|
