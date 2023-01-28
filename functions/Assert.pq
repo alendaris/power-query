@@ -5,332 +5,374 @@
     Error.Reason = "Assertion Error",
     
    /** Basic assertion function. Check if expression is true **/
-True =
-    let
-        TrueType = type function (
-            expression as (type logical meta [
-                Documentation.FieldCaption = "Expression",
-                Documentation.FieldDescription = "The value to be evaluated as true or false",
-                Documentation.SampleValues = {true, false}
-            ]),
-            optional message as (type nullable text meta [
-                Documentation.FieldCaption = "Message",
-                Documentation.FieldDescription = "Optional message to display when the expression is false",
-                Documentation.SampleValues = {"Value is not true", null}
-            ]),
-            optional detail as (type any meta [
-                Documentation.FieldCaption = "Detail",
-                Documentation.FieldDescription = "Optional detail to include when the expression is false",
-                Documentation.SampleValues = {null, true, 1, "a"}
-            ]))
-            as logical meta [
-                Documentation.Name = "True",
-                Documentation.LongDescription = "Basic assertion function. Check if expression is true",
-                Documentation.Examples = {[
-                    Description = "Check if a value is true",
-                    Code = "True(1=1)",
-                    Result = true
-                ],[
-                    Description = "Check if a value is true",
-                    Code = "True(1=2)",
-                    Result = "value is not true"
-                ]}
-            ],
+    True =
+        let
+            TrueType = type function (
+                expression as (type logical meta [
+                    Documentation.FieldCaption = "Expression",
+                    Documentation.FieldDescription = "The value to be evaluated as true or false",
+                    Documentation.SampleValues = {true, false}
+                ]),
+                optional message as (type nullable text meta [
+                    Documentation.FieldCaption = "Message",
+                    Documentation.FieldDescription = "Optional message to display when the expression is false",
+                    Documentation.SampleValues = {"Value is not true", null}
+                ]),
+                optional detail as (type any meta [
+                    Documentation.FieldCaption = "Detail",
+                    Documentation.FieldDescription = "Optional detail to include when the expression is false",
+                    Documentation.SampleValues = {null, true, 1, "a"}
+                ]))
+                as logical meta [
+                    Documentation.Name = "True",
+                    Documentation.LongDescription = "Basic assertion function. Check if expression is true",
+                    Documentation.Examples = {[
+                        Description = "Check if a value is true",
+                        Code = "True(1=1)",
+                        Result = true
+                    ],[
+                        Description = "Check if a value is true",
+                        Code = "True(1=2)",
+                        Result = "value is not true"
+                    ]}
+                ],
 
-        TrueImpl = (expression, optional message as nullable text, optional detail) as logical =>
-            let
-                Message = if message = null then "value is not true" else message,
-                Detail = if detail = null then expression else detail,
-                Return =
-                    if expression = true
-                    then expression
-                    else error Error.Record(Error.Reason, Message, Detail)
-            in
-                Return
-    in
-        Value.ReplaceType(TrueImpl, TrueType),
+            TrueImpl = (expression, optional message as nullable text, optional detail) as logical =>
+                let
+                    Message = if message = null then "value is not true" else message,
+                    Detail = if detail = null then expression else detail,
+                    Return =
+                        if expression = true
+                        then expression
+                        else error Error.Record(Error.Reason, Message, Detail)
+                in
+                    Return
+        in
+            Value.ReplaceType(TrueImpl, TrueType),
    
    /** Check if expression is false **/
-False = 
-    let
-        FalseType = type function (
-            expression as (type logical meta [
-                Documentation.FieldCaption = "Expression",
-                Documentation.FieldDescription = "The value to be evaluated as true or false",
-                Documentation.SampleValues = {true, false}
-            ]),
-            optional message as (type nullable text meta [
-                Documentation.FieldCaption = "Message",
-                Documentation.FieldDescription = "Optional message to display when the expression is true",
-                Documentation.SampleValues = {"Value is not false", null}
-            ]),
-            optional detail as (type any meta [
-                Documentation.FieldCaption = "Detail",
-                Documentation.FieldDescription = "Optional detail to include when the expression is true",
-                Documentation.SampleValues = {null, true, 1, "a"}
-            ]))
-            as logical meta [
-                Documentation.Name = "False",
-                Documentation.LongDescription = "Check if expression is false",
-                Documentation.Examples = {[
-                    Description = "Check if a value is false",
-                    Code = "False(1=2)",
-                    Result = true
-                ],[
-                    Description = "Check if a value is true",
-                    Code = "False(1=1)",
-                    Result = "value is not false"
-                ]}
-            ],
+    False = 
+        let
+            FalseType = type function (
+                expression as (type logical meta [
+                    Documentation.FieldCaption = "Expression",
+                    Documentation.FieldDescription = "The value to be evaluated as true or false",
+                    Documentation.SampleValues = {true, false}
+                ]),
+                optional message as (type nullable text meta [
+                    Documentation.FieldCaption = "Message",
+                    Documentation.FieldDescription = "Optional message to display when the expression is true",
+                    Documentation.SampleValues = {"Value is not false", null}
+                ]),
+                optional detail as (type any meta [
+                    Documentation.FieldCaption = "Detail",
+                    Documentation.FieldDescription = "Optional detail to include when the expression is true",
+                    Documentation.SampleValues = {null, true, 1, "a"}
+                ]))
+                as logical meta [
+                    Documentation.Name = "False",
+                    Documentation.LongDescription = "Check if expression is false",
+                    Documentation.Examples = {[
+                        Description = "Check if a value is false",
+                        Code = "False(1=2)",
+                        Result = true
+                    ],[
+                        Description = "Check if a value is true",
+                        Code = "False(1=1)",
+                        Result = "value is not false"
+                    ]}
+                ],
 
-        FalseImpl = (expression, optional message as nullable text, optional detail) as logical =>
-            let
-                Message = if message = null then "value is not false" else message,
-                Detail = if detail = null then expression else detail,
-                Return = True(expression = false, Message, Detail)
-            in
-                Return
-    in
-        Value.ReplaceType(FalseImpl, FalseType),
+            FalseImpl = (expression, optional message as nullable text, optional detail) as logical =>
+                let
+                    Message = if message = null then "value is not false" else message,
+                    Detail = if detail = null then expression else detail,
+                    Return = True(expression = false, Message, Detail)
+                in
+                    Return
+        in
+            Value.ReplaceType(FalseImpl, FalseType),
 
+    /** Check if a and b are equal **/
+    Equal = 
+        let
+            EqualType = type function (
+                a as (type any meta [
+                    Documentation.FieldCaption = "A",
+                    Documentation.FieldDescription = "The first value to compare",
+                    Documentation.SampleValues = {true, 1, "a"}
+                ]),
+                b as (type any meta [
+                    Documentation.FieldCaption = "B",
+                    Documentation.FieldDescription = "The second value to compare",
+                    Documentation.SampleValues = {false, 2, "b"}
+                ]),
+                optional message as (type nullable text meta [
+                    Documentation.FieldCaption = "Message",
+                    Documentation.FieldDescription = "Optional message to display when the values are not equal",
+                    Documentation.SampleValues = {"Values are not equal", null}
+                ]),
+                optional detail as (type any meta [
+                    Documentation.FieldCaption = "Detail",
+                    Documentation.FieldDescription = "Optional detail to include when the values are not equal",
+                    Documentation.SampleValues = {null, true, 1, "a"}
+                ]))
+                as logical meta [
+                    Documentation.Name = "Equal",
+                    Documentation.LongDescription = "Check if a and b are equal",
+                    Documentation.Examples = {[
+                        Description = "Check if two values are equal",
+                        Code = "Equal(1, 1)",
+                        Result = true
+                    ],[
+                        Description = "Check if two values are not equal",
+                        Code = "Equal(1, 2)",
+                        Result = Error.Record
+                    ]}
+                ],
 
-
-/** Check if a and b are equal **/
-Equal = 
-    let
-        EqualType = type function (
-            a as (type any meta [
-                Documentation.FieldCaption = "A",
-                Documentation.FieldDescription = "The first value to compare",
-                Documentation.SampleValues = {true, 1, "a"}
-            ]),
-            b as (type any meta [
-                Documentation.FieldCaption = "B",
-                Documentation.FieldDescription = "The second value to compare",
-                Documentation.SampleValues = {false, 2, "b"}
-            ]),
-            optional message as (type nullable text meta [
-                Documentation.FieldCaption = "Message",
-                Documentation.FieldDescription = "Optional message to display when the values are not equal",
-                Documentation.SampleValues = {"Values are not equal", null}
-            ]),
-            optional detail as (type any meta [
-                Documentation.FieldCaption = "Detail",
-                Documentation.FieldDescription = "Optional detail to include when the values are not equal",
-                Documentation.SampleValues = {null, true, 1, "a"}
-            ]))
-            as logical meta [
-                Documentation.Name = "Equal",
-                Documentation.LongDescription = "Check if a and b are equal",
-                Documentation.Examples = {[
-                    Description = "Check if two values are equal",
-                    Code = "Equal(1, 1)",
-                    Result = true
-                ],[
-                    Description = "Check if two values are not equal",
-                    Code = "Equal(1, 2)",
-                    Result = Error.Record
-                ]}
-            ],
-
-        EqualImpl = (a, b, optional message as nullable text, optional detail) as logical =>
-            let
-                Message = if message = null then "values are not equal" else message,
-                Detail = if detail = null then {a,b} else detail,
-                Return = True(a = b, Message, Detail)
-            in
-                Return
-    in
-        Value.ReplaceType(EqualImpl, EqualType),
+            EqualImpl = (a, b, optional message as nullable text, optional detail) as logical =>
+                let
+                    Message = if message = null then "values are not equal" else message,
+                    Detail = if detail = null then {a,b} else detail,
+                    Return = True(a = b, Message, Detail)
+                in
+                    Return
+        in
+            Value.ReplaceType(EqualImpl, EqualType),
 
 
-/** Check if a and b are not equal **/
-NotEqual = 
-    let
-        NotEqualType = type function (
-            a as (type any meta [
-                Documentation.FieldCaption = "A",
-                Documentation.FieldDescription = "The first value to compare",
-                Documentation.SampleValues = {true, 1, "a"}
-            ]),
-            b as (type any meta [
-                Documentation.FieldCaption = "B",
-                Documentation.FieldDescription = "The second value to compare",
-                Documentation.SampleValues = {false, 2, "b"}
-            ]),
-            optional message as (type nullable text meta [
-                Documentation.FieldCaption = "Message",
-                Documentation.FieldDescription = "Optional message to display when the values are equal",
-                Documentation.SampleValues = {"Values are equal", null}
-            ]),
-            optional detail as (type any meta [
-                Documentation.FieldCaption = "Detail",
-                Documentation.FieldDescription = "Optional detail to include when the values are equal",
-                Documentation.SampleValues = {null, true, 1, "a"}
-            ]))
-            as logical meta [
-                Documentation.Name = "NotEqual",
-                Documentation.LongDescription = "Check if a and b are not equal",
-                Documentation.Examples = {[
-                    Description = "Check if two values are not equal",
-                    Code = "NotEqual(1, 2)",
-                    Result = true
-                ],[
-                    Description = "Check if two values are equal",
-                    Code = "NotEqual(1, 1)",
-                    Result = Error.Record
-                ]}
-            ],
+    /** Check if a and b are not equal **/
+    NotEqual = 
+        let
+            NotEqualType = type function (
+                a as (type any meta [
+                    Documentation.FieldCaption = "A",
+                    Documentation.FieldDescription = "The first value to compare",
+                    Documentation.SampleValues = {true, 1, "a"}
+                ]),
+                b as (type any meta [
+                    Documentation.FieldCaption = "B",
+                    Documentation.FieldDescription = "The second value to compare",
+                    Documentation.SampleValues = {false, 2, "b"}
+                ]),
+                optional message as (type nullable text meta [
+                    Documentation.FieldCaption = "Message",
+                    Documentation.FieldDescription = "Optional message to display when the values are equal",
+                    Documentation.SampleValues = {"Values are equal", null}
+                ]),
+                optional detail as (type any meta [
+                    Documentation.FieldCaption = "Detail",
+                    Documentation.FieldDescription = "Optional detail to include when the values are equal",
+                    Documentation.SampleValues = {null, true, 1, "a"}
+                ]))
+                as logical meta [
+                    Documentation.Name = "NotEqual",
+                    Documentation.LongDescription = "Check if a and b are not equal",
+                    Documentation.Examples = {[
+                        Description = "Check if two values are not equal",
+                        Code = "NotEqual(1, 2)",
+                        Result = true
+                    ],[
+                        Description = "Check if two values are equal",
+                        Code = "NotEqual(1, 1)",
+                        Result = Error.Record
+                    ]}
+                ],
 
-        NotEqualImpl = (a, b, optional message as nullable text, optional detail) as logical =>
-            let
-                Message = if message = null then "values are equal" else message,
-                Detail = if detail = null then {a,b} else detail,
-                Return = False(a = b, Message, Detail)
-            in
-                Return
-    in
-        Value.ReplaceType(NotEqualImpl, NotEqualType),
+            NotEqualImpl = (a, b, optional message as nullable text, optional detail) as logical =>
+                let
+                    Message = if message = null then "values are equal" else message,
+                    Detail = if detail = null then {a,b} else detail,
+                    Return = False(a = b, Message, Detail)
+                in
+                    Return
+        in
+            Value.ReplaceType(NotEqualImpl, NotEqualType),
         
-        /** Check if a is greater than b **/
-GreaterThan = 
-    let
-        GreaterThanType = type function (
-            a as (type any meta [
-                Documentation.FieldCaption = "A",
-                Documentation.FieldDescription = "The first value to compare",
-                Documentation.SampleValues = {true, 1, "a"}
-            ]),
-            b as (type any meta [
-                Documentation.FieldCaption = "B",
-                Documentation.FieldDescription = "The second value to compare",
-                Documentation.SampleValues = {false, 2, "b"}
-            ]),
-            optional message as (type nullable text meta [
-                Documentation.FieldCaption = "Message",
-                Documentation.FieldDescription = "Optional message to display when the value of a is less than or equal to b",
-                Documentation.SampleValues = {"Value of a is less than or equal to b", null}
-            ]),
-            optional detail as (type any meta [
-                Documentation.FieldCaption = "Detail",
-                Documentation.FieldDescription = "Optional detail to include when the value of a is less than or equal to b",
-                Documentation.SampleValues = {null, true, 1, "a"}
-            ]))
-            as logical meta [
-                Documentation.Name = "GreaterThan",
-                Documentation.LongDescription = "Check if a is greater than b",
-                Documentation.Examples = {[
-                    Description = "Check if a value is greater than another",
-                    Code = "GreaterThan(2, 1)",
-                    Result = true
-                ],[
-                    Description = "Check if a value is less than or equal to another",
-                    Code = "GreaterThan(1, 2)",
-                    Result = Error.Record
-                ]}
-            ],
+    /** Check if a is greater than b **/
+    GreaterThan = 
+        let
+            GreaterThanType = type function (
+                a as (type any meta [
+                    Documentation.FieldCaption = "A",
+                    Documentation.FieldDescription = "The first value to compare",
+                    Documentation.SampleValues = {true, 1, "a"}
+                ]),
+                b as (type any meta [
+                    Documentation.FieldCaption = "B",
+                    Documentation.FieldDescription = "The second value to compare",
+                    Documentation.SampleValues = {false, 2, "b"}
+                ]),
+                optional message as (type nullable text meta [
+                    Documentation.FieldCaption = "Message",
+                    Documentation.FieldDescription = "Optional message to display when the value of a is less than or equal to b",
+                    Documentation.SampleValues = {"Value of a is less than or equal to b", null}
+                ]),
+                optional detail as (type any meta [
+                    Documentation.FieldCaption = "Detail",
+                    Documentation.FieldDescription = "Optional detail to include when the value of a is less than or equal to b",
+                    Documentation.SampleValues = {null, true, 1, "a"}
+                ]))
+                as logical meta [
+                    Documentation.Name = "GreaterThan",
+                    Documentation.LongDescription = "Check if a is greater than b",
+                    Documentation.Examples = {[
+                        Description = "Check if a value is greater than another",
+                        Code = "GreaterThan(2, 1)",
+                        Result = true
+                    ],[
+                        Description = "Check if a value is less than or equal to another",
+                        Code = "GreaterThan(1, 2)",
+                        Result = Error.Record
+                    ]}
+                ],
 
-        GreaterThanImpl = (a, b, optional message as nullable text, optional detail) as logical =>
-            let
-                Message = if message = null then "value a is less than b" else message,
-                Detail = if detail = null then {a,b} else detail,
-                Return = True(a > b, Message, Detail)
-            in
-                Return
-    in
-        Value.ReplaceType(GreaterThanImpl, GreaterThanType),
+            GreaterThanImpl = (a, b, optional message as nullable text, optional detail) as logical =>
+                let
+                    Message = if message = null then "value a is less than b" else message,
+                    Detail = if detail = null then {a,b} else detail,
+                    Return = True(a > b, Message, Detail)
+                in
+                    Return
+        in
+            Value.ReplaceType(GreaterThanImpl, GreaterThanType),
 
-/** Check if a is less than b **/
-LessThan = 
-    let
-        LessThanType = type function (
-            a as (type any meta [
-                Documentation.FieldCaption = "A",
-                Documentation.FieldDescription = "The first value to compare",
-                Documentation.SampleValues = {true, 1, "a"}
-            ]),
-            b as (type any meta [
-                Documentation.FieldCaption = "B",
-                Documentation.FieldDescription = "The second value to compare",
-                Documentation.SampleValues = {false, 2, "b"}
-            ]),
-            optional message as (type nullable text meta [
-                Documentation.FieldCaption = "Message",
-                Documentation.FieldDescription = "Optional message to display when the value of a is greater than or equal to b",
-                Documentation.SampleValues = {"Value of a is greater than or equal to b", null}
-            ]),
-            optional detail as (type any meta [
-                Documentation.FieldCaption = "Detail",
-                Documentation.FieldDescription = "Optional detail to include when the value of a is greater than or equal to b",
-                Documentation.SampleValues = {null, true, 1, "a"}
-            ]))
-            as logical meta [
-                Documentation.Name = "LessThan",
-                Documentation.LongDescription = "Check if a is less than b",
-                Documentation.Examples = {[
-                    Description = "Check if a value is less than another",
-                    Code = "LessThan(1, 2)",
-                    Result = true
-                ],[
-                    Description = "Check if a value is greater than or equal to another",
-                    Code = "LessThan(2, 1)",
-                    Result = Error.Record
-                ]}
-            ],
+    /** Check if a is less than b **/
+    LessThan = 
+        let
+            LessThanType = type function (
+                a as (type any meta [
+                    Documentation.FieldCaption = "A",
+                    Documentation.FieldDescription = "The first value to compare",
+                    Documentation.SampleValues = {true, 1, "a"}
+                ]),
+                b as (type any meta [
+                    Documentation.FieldCaption = "B",
+                    Documentation.FieldDescription = "The second value to compare",
+                    Documentation.SampleValues = {false, 2, "b"}
+                ]),
+                optional message as (type nullable text meta [
+                    Documentation.FieldCaption = "Message",
+                    Documentation.FieldDescription = "Optional message to display when the value of a is greater than or equal to b",
+                    Documentation.SampleValues = {"Value of a is greater than or equal to b", null}
+                ]),
+                optional detail as (type any meta [
+                    Documentation.FieldCaption = "Detail",
+                    Documentation.FieldDescription = "Optional detail to include when the value of a is greater than or equal to b",
+                    Documentation.SampleValues = {null, true, 1, "a"}
+                ]))
+                as logical meta [
+                    Documentation.Name = "LessThan",
+                    Documentation.LongDescription = "Check if a is less than b",
+                    Documentation.Examples = {[
+                        Description = "Check if a value is less than another",
+                        Code = "LessThan(1, 2)",
+                        Result = true
+                    ],[
+                        Description = "Check if a value is greater than or equal to another",
+                        Code = "LessThan(2, 1)",
+                        Result = Error.Record
+                    ]}
+                ],
 
-        LessThanImpl = (a, b, optional message as nullable text, optional detail) as logical =>
-            let
-                Message = if message = null then "value a is greater than b" else message,
-                Detail = if detail = null then {a,b} else detail,
-                Return = True(a < b, Message, Detail)
-            in
-                Return
-    in
-        Value.ReplaceType(LessThanImpl, LessThanType),
-        
-        PositiveImpl = (a, optional message as nullable text, optional detail) as logical =>
-    let
-        Message = if message = null then "value is non-positive" else message,
-        Detail = if detail = null then a else detail,
-        Return = True(a > 0, Message, Detail)
-    in
-        Return,
-
-/** Check if a is positive **/
-
-let
-PositiveType = type function (
-a as (type any meta [
-Documentation.FieldCaption = "A",
-Documentation.FieldDescription = "The value to evaluate as positive or non-positive",
-Documentation.SampleValues = {true, 1, "a"}
-]),
-optional message as (type nullable text meta [
-Documentation.FieldCaption = "Message",
-Documentation.FieldDescription = "Optional message to display when the value is non-positive",
-Documentation.SampleValues = {"Value is non-positive", null}
-]),
-optional detail as (type any meta [
-Documentation.FieldCaption = "Detail",
-Documentation.FieldDescription = "Optional detail to include when the value is non-positive",
-Documentation.SampleValues = {null, true, 1, "a"}
-]))
-as logical meta [
-Documentation.Name = "Positive",
-Documentation.LongDescription = "Check if a is positive",
-Documentation.Examples = {[
-Description = "Check if a value is positive",
-Code = "Positive(1)",
-Result = true
-],[
-Description = "Check if a value is non-positive",
-Code = "Positive(-1)",
-Result = Error.Record
-]}
-],
+            LessThanImpl = (a, b, optional message as nullable text, optional detail) as logical =>
+                let
+                    Message = if message = null then "value a is greater than b" else message,
+                    Detail = if detail = null then {a,b} else detail,
+                    Return = True(a < b, Message, Detail)
+                in
+                    Return
+        in
+            Value.ReplaceType(LessThanImpl, LessThanType),
 
 
-/** Check if a is positive **/
+    /** Check if a is positive **/
+    Positive = 
+        let
+            PositiveType = type function (
+                a as (type any meta [
+                    Documentation.FieldCaption = "A",
+                    Documentation.FieldDescription = "The value to evaluate as positive or non-positive",
+                    Documentation.SampleValues = {true, 1, "a"}
+                ]),
+                optional message as (type nullable text meta [
+                    Documentation.FieldCaption = "Message",
+                    Documentation.FieldDescription = "Optional message to display when the value is non-positive",
+                    Documentation.SampleValues = {"Value is non-positive", null}
+                ]),
+                optional detail as (type any meta [
+                    Documentation.FieldCaption = "Detail",
+                    Documentation.FieldDescription = "Optional detail to include when the value is non-positive",
+                    Documentation.SampleValues = {null, true, 1, "a"}
+                ]))
+                as logical meta [
+                    Documentation.Name = "Positive",
+                    Documentation.LongDescription = "Check if a is positive",
+                    Documentation.Examples = {[
+                        Description = "Check if a value is positive",
+                        Code = "Positive(1)",
+                        Result = true
+                    ],[
+                        Description = "Check if a value is non-positive",
+                        Code = "Positive(-1)",
+                        Result = Error.Record
+                        ]}
+                    ],
+            PositiveImpl = (a, optional message as nullable text, optional detail) as logical =>
+                let
+                    Message = if message = null then "value is non-positive" else message,
+                    Detail = if detail = null then a else detail,
+                    Return = True(a > 0, Message, Detail)
+                in
+                    Return
+        in
+            Value.ReplaceType(PositiveImpl, PositiveType),
+
+    /** Check if a is negative **/ 
+    Negative = 
+        let
+            NegativeType = type function (
+                a as (type any meta [
+                    Documentation.FieldCaption = "A",
+                    Documentation.FieldDescription = "The value to evaluate as negative or non-negative",
+                    Documentation.SampleValues = {true, 1, "a"}
+                ]),
+                optional message as (type nullable text meta [
+                    Documentation.FieldCaption = "Message",
+                    Documentation.FieldDescription = "Optional message to display when the value is non-negative",
+                    Documentation.SampleValues = {"Value is non-negative", null}
+                ]),
+                optional detail as (type any meta [
+                    Documentation.FieldCaption = "Detail",
+                    Documentation.FieldDescription = "Optional detail to include when the value is non-negative",
+                    Documentation.SampleValues = {null, true, 1, "a"}
+                ]))
+                as logical meta [
+                    Documentation.Name = "Negative",
+                    Documentation.LongDescription = "Check if a is negative",
+                    Documentation.Examples = {[
+                        Description = "Check if a value is negative",
+                        Code = "Negative(-1)",
+                        Result = true
+                    ],[
+                        Description = "Check if a value is non-negative",
+                        Code = "Negative(1)",
+                        Result = Error.Record
+                    ]}
+                ],
+
+            NegativeImpl = (a, optional message as nullable text, optional detail) as logical =>
+                let
+                    Message = if message = null then "value is non-negative" else message,
+                    Detail = if detail = null then a else detail,
+                    Return = True(a < 0, Message, Detail)
+                in
+                    Return
+        in
+            Value.ReplaceType(NegativeImpl, NegativeType),
+
+    /** Check if a is non-negative **/
     NonNegative = 
         let
             NonNegativeType = type function (
@@ -374,7 +416,7 @@ Result = Error.Record
             
             
             
-            /** Check if a is negative **/
+    /** Check if a is negative **/
     NonPositive = 
         let
             NonPositiveType = type function (
@@ -418,7 +460,7 @@ Result = Error.Record
             Value.ReplaceType(NonPositiveImpl,NonPositiveType),
             
             
-            /** Check if zero-argument function raises error **/
+    /** Check if zero-argument function raises error **/
     Raises = (func, reason as text, optional message as nullable text, optional detail) =>
         let
             Message = if message = null then "does not raise " & reason else message,
@@ -443,7 +485,7 @@ Result = Error.Record
             filteredTable,
             
             
-            // Check if Table has a certain number of rows
+    // Check if Table has a certain number of rows
     TableRowCountEqual = 
         let
             TableRowCountEqualType = type function (
@@ -489,10 +531,10 @@ Result = Error.Record
                 in
                     Return
         in
-            Value.ReplaceType(TableRowCountEqualImpl, TableRowCountEqualType)
+            Value.ReplaceType(TableRowCountEqualImpl, TableRowCountEqualType),
             
             
-            // Check if Table is Empty
+    // Check if Table is Empty
     TableEmpty = 
         let
             TableEmptyType = type function (
@@ -530,48 +572,4 @@ Result = Error.Record
                     Return
         in
             Value.ReplaceType(TableEmptyImpl, TableEmptyType)
-            
-            
-
-/** Check if a is negative **/
-    Negative = 
-        let
-            NegativeType = type function (
-                a as (type any meta [
-                    Documentation.FieldCaption = "A",
-                    Documentation.FieldDescription = "The value to evaluate as negative or non-negative",
-                    Documentation.SampleValues = {true, 1, "a"}
-                ]),
-                optional message as (type nullable text meta [
-                    Documentation.FieldCaption = "Message",
-                    Documentation.FieldDescription = "Optional message to display when the value is non-negative",
-                    Documentation.SampleValues = {"Value is non-negative", null}
-                ]),
-                optional detail as (type any meta [
-                    Documentation.FieldCaption = "Detail",
-                    Documentation.FieldDescription = "Optional detail to include when the value is non-negative",
-                    Documentation.SampleValues = {null, true, 1, "a"}
-                ]))
-                as logical meta [
-                    Documentation.Name = "Negative",
-                    Documentation.LongDescription = "Check if a is negative",
-                    Documentation.Examples = {[
-                        Description = "Check if a value is negative",
-                        Code = "Negative(-1)",
-                        Result = true
-                    ],[
-                        Description = "Check if a value is non-negative",
-                        Code = "Negative(1)",
-                        Result = Error.Record
-                    ]}
-                ],
-
-            NegativeImpl = (a, optional message as nullable text, optional detail) as logical =>
-                let
-                    Message = if message = null then "value is non-negative" else message,
-                    Detail = if detail = null then a else detail,
-                    Return = True(a < 0, Message, Detail)
-                in
-                    Return
-        in
-            Value.ReplaceType(NegativeImpl, NegativeType)
+]
