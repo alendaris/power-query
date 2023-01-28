@@ -2,7 +2,8 @@
 
 A library of Power Query functions & other reference material.
 
-|Function|Description|
+## Functions
+|**Function**|**Description**|
 |:---|:---|
 |BinaryImageToDataURI|Converts a binary image to a Data URI representation.|
 |Compress|Performs the compression steps that PQ uses when generating the Source string for queries created from the Enter Data functionality.|
@@ -21,6 +22,7 @@ A library of Power Query functions & other reference material.
 |ValueToMCode|Converts nearly any type of value into equivalent M code.|
 |ValueTypeToText|Converts the type of a value into text.|
 
-|Data File|Description|Source|
+## Data Files
+|**Data File**|**Description**|**Source**|
 |:---|:---|:---|
 |UNSD — Methodology.csv|Standard country or area codes for statistical use (M49)|https://unstats.un.org/unsd/methodology/m49/overview/#ENG_Overview
