@@ -19,3 +19,4 @@ A library of Power Query functions & other reference material.
 |TableToMCode|Converts a simple table to equivalent M code. Credit: ImkeF|
 |Unzip|Unzip the binary of a .zip file.|
 |ValueToMCode|Converts nearly any type of value into equivalent M code.|
+|ValueTypeToText|Converts the type of a value into text.|
