@@ -21,6 +21,6 @@ A library of Power Query functions & other reference material.
 |ValueToMCode|Converts nearly any type of value into equivalent M code.|
 |ValueTypeToText|Converts the type of a value into text.|
 
-|Data File|Description|Source
+|Data File|Description|Source|
 |:---|:---|
 |UNSD — Methodology.csv|Standard country or area codes for statistical use (M49)|https://unstats.un.org/unsd/methodology/m49/overview/#ENG_Overview
