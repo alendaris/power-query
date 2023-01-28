@@ -17,3 +17,21 @@
 //  By default, this will poll #sections[Section1], excluding any query named bandaid (for obvious reasons)
 //
 
+[
+    new = (comment as text, optional query as text, optional step as text) =>
+        [
+            bandaid = {
+                [comment = comment, query = query, step = step]
+            }
+        ],
+    combine = (values as list) =>
+        let
+            bandaids = List.Combine(List.RemoveNulls(List.Transform(values, each Value.Metadata(_)[bandaid]?)))
+        in
+            [
+                bandaid = bandaids
+            ],
+    // TODO: Update report to poll Section1 instead of just taking 1 value
+    report = (value as any) =>
+        try Table.FromRecords(Value.Metadata(value)[bandaid]) otherwise null
+]
