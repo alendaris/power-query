@@ -288,7 +288,8 @@ let
                             in 
                                 if Expression.Evaluate(Return)=value then Return else error "Unable to convert to M Code"
                 in 
-                    if Record.FieldCount(Value.Metadata(value)) > 0 then
+                    if Record.FieldCount(Value.Metadata(value)) > 0 and 
+                        not Text.Contains(Value.Metadata(value)[Documentation.Description]?,"The type that represents ") then
                         Return & " meta " & 
                         (let  
                             metadata = Value.Metadata(value),
