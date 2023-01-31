@@ -203,6 +203,80 @@ let
                 {"716", "ZW", "ZWE", "Zimbabwe"}
             }
         ),
+    additionalDefaultCountries = 
+        #table(
+            type table [
+                #"Country Code" = Text.Type,
+                #"Country Code (alpha3)" = Text.Type,
+                #"Country Name" = Text.Type,
+                #"Country Code (numeric)" = Int64.Type
+            ],
+            {
+                {"AS", "ASM", "American Samoa", 16},
+                {"AI", "AIA", "Anguilla", 660},
+                {"AQ", "ATA", "Antarctica", 10},
+                {"AW", "ABW", "Aruba", 533},
+                {"BM", "BMU", "Bermuda", 60},
+                {"BQ", "BES", "Bonaire, Sint Eustatius and Saba", 535},
+                {"BV", "BVT", "Bouvet Island", 74},
+                {"IO", "IOT", "British Indian Ocean Territory", 86},
+                {"VG", "VGB", "British Virgin Islands", 92},
+                {"KY", "CYM", "Cayman Islands", 136},
+                {"HK", "HKG", "China, Hong Kong Special Administrative Region", 344},
+                {"MO", "MAC", "China, Macao Special Administrative Region", 446},
+                {"CX", "CXR", "Christmas Island", 162},
+                {"CC", "CCK", "Cocos (Keeling) Islands", 166},
+                {"CK", "COK", "Cook Islands", 184},
+                {"CW", "CUW", "Curaçao", 531},
+                {"FK", "FLK", "Falkland Islands (Malvinas)", 238},
+                {"FO", "FRO", "Faroe Islands", 234},
+                {"GF", "GUF", "French Guiana", 254},
+                {"PF", "PYF", "French Polynesia", 258},
+                {"TF", "ATF", "French Southern Territories", 260},
+                {"GI", "GIB", "Gibraltar", 292},
+                {"GL", "GRL", "Greenland", 304},
+                {"GP", "GLP", "Guadeloupe", 312},
+                {"GU", "GUM", "Guam", 316},
+                {"GG", "GGY", "Guernsey", 831},
+                {"HM", "HMD", "Heard Island and McDonald Islands", 334},
+                {"VA", "VAT", "Holy See", 336},
+                {"IM", "IMN", "Isle of Man", 833},
+                {"JE", "JEY", "Jersey", 832},
+                {"MQ", "MTQ", "Martinique", 474},
+                {"YT", "MYT", "Mayotte", 175},
+                {"MS", "MSR", "Montserrat", 500},
+                {"NC", "NCL", "New Caledonia", 540},
+                {"NU", "NIU", "Niue", 570},
+                {"NF", "NFK", "Norfolk Island", 574},
+                {"MP", "MNP", "Northern Mariana Islands", 580},
+                {"PN", "PCN", "Pitcairn", 612},
+                {"PR", "PRI", "Puerto Rico", 630},
+                {"RE", "REU", "Réunion", 638},
+                {"BL", "BLM", "Saint Barthélemy", 652},
+                {"SH", "SHN", "Saint Helena", 654},
+                {"MF", "MAF", "Saint Martin (French Part)", 663},
+                {"PM", "SPM", "Saint Pierre and Miquelon", 666},
+                {"CQ", "CRQ", "Sark", 680},
+                {"SX", "SXM", "Sint Maarten (Dutch part)", 534},
+                {"GS", "SGS", "South Georgia and the South Sandwich Islands", 239},
+                {"PS", "PSE", "State of Palestine", 275},
+                {"SJ", "SJM", "Svalbard and Jan Mayen Islands", 744},
+                {"TK", "TKL", "Tokelau", 772},
+                {"TC", "TCA", "Turks and Caicos Islands", 796},
+                {"UM", "UMI", "United States Minor Outlying Islands", 581},
+                {"VI", "VIR", "United States Virgin Islands", 850},
+                {"WF", "WLF", "Wallis and Futuna Islands", 876},
+                {"EH", "ESH", "Western Sahara", 732},
+                {"AX", "ALA", "Åland Islands", 248}
+            }
+        ) meta [
+            QueryFolding = [
+                    IsFolded = false,
+                    HasNativeQuery = false,
+                    Kind = "",
+                    Path = ""
+                ]
+        ],
     defaultPossibleNames = 
         #table(
             type table [#"Country Code" = Text.Type, #"Possible Name" = Text.Type],
@@ -1254,7 +1328,7 @@ let
                     countryInfo = (optional code as text) =>
                         world[Countries]{[Country Code = code]},
                     findCountry = (name as text) as nullable text =>
-                        try world[Possible Names]{[Possible Name = Text.Proper(name)]}[Country Code] otherwise null,
+                        try world[Possible Names]{[Possible Name = Text.Proper(name)]}[Country Code] otherwise Error.Record("Country Missing","Could not find country in list of possible names",name),
                     addCountryName = (code as text, name as text) =>
                         if not List.Contains(try world[Possible Names][Possible Name] otherwise {},name) then
                             @NewWorld(
@@ -1283,7 +1357,7 @@ let
                         Table.RemoveMatchingRows(world[Possible Names],world[Original Possible Names])
                 ],
             initialState = [
-                Countries = defaultCountries,
+                Countries = Table.Combine({defaultCountries,additionalDefaultCountries}),
                 Possible Names = defaultPossibleNames,
                 Continents = defaultContinents,
                 Original Possible Names = Table.ToRecords(#"Possible Names")
