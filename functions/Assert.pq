@@ -1,5 +1,3 @@
-// TODO: Add credit to the LibPQ library of functions
-
 [
     // Default Error Reason
     Error.Reason = "Assertion Error",
