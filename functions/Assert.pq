@@ -476,9 +476,12 @@
     AssertTable = (inputTable as table, functionToApply as function, optional columnsToInclude as list) =>
         let
             indexedTable = Table.AddIndexColumn(inputTable, "Index", 2, 1, Int64.Type),
-            selectedColumns = if (columnsToInclude = null) then Table.ReorderColumns(indexedTable, {"Index"} & Table.ColumnNames(inputTable)) else Table.SelectColumns(indexedTable, {"Index"} & columnsToInclude),
-            transformedTable = Table.AddColumn(selectedColumns, "_Assert", functionToApply),
-            filteredTable = Table.SelectRowsWithErrors(transformedTable)
+            
+            transformedTable = Table.AddColumn(indexedTable, "_Assert", functionToApply),
+            
+            selectedColumns = if (columnsToInclude = null) then Table.ReorderColumns(transformedTable, {"Index"} & Table.ColumnNames(inputTable) & {"_Assert"}) else Table.SelectColumns(transformedTable, {"Index"} & columnsToInclude & {"_Assert"}),
+            
+            filteredTable = Table.SelectRowsWithErrors(selectedColumns)
         in 
             filteredTable,
             
