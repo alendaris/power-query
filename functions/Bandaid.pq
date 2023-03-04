@@ -44,7 +44,7 @@
             except = if exclude = null then {} else if exclude is text then {exclude} else exclude,
             Source = Record.RemoveFields(env,except),
             #"Converted to Table" = Record.ToTable(Source),
-            #"Added Custom" = try Bandaid[combine](#"Converted to Table"[Value])[bandaid] otherwise null,
+            #"Added Custom" = try combine(#"Converted to Table"[Value])[bandaid] otherwise null,
             bandaidTable = Table.FromRecords(#"Added Custom")
         in
             bandaidTable
