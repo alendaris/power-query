@@ -288,11 +288,11 @@ let
                             in 
                                 if Expression.Evaluate(Return)=value then Return else error "Unable to convert to M Code"
                 in 
-                    if Record.FieldCount(Value.Metadata(value)) > 0 and 
-                        not Text.Contains(Value.Metadata(value)[Documentation.Description]?,"The type that represents ") then
+                    if Record.FieldCount(Record.RemoveFields(Value.Metadata(value),"QueryFolding",MissingField.Ignore)) > 0 and 
+                        not Text.Contains(Record.FieldOrDefault(Value.Metadata(value),"Documentation.Description",""),"The type that represents ") then
                         Return & " meta " & 
                         (let  
-                            metadata = Value.Metadata(value),
+                            metadata = Record.RemoveFields(Value.Metadata(value),"QueryFolding",MissingField.Ignore),
                             Source = @ValueToMCode(metadata),
                             Deflated = Text.From(Binary.Compress(Text.ToBinary(Source),Compression.Deflate)),
                             Reinflate = firstindent & "Expression.Evaluate(Text.FromBinary(Binary.Decompress(Binary.FromText(" & TextToMCode(Deflated) & "),Compression.Deflate)))"
