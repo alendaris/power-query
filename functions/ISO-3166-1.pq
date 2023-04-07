@@ -1321,34 +1321,172 @@ let
             }
         ),
     createWorld = 
-        //(/*countryTable as table, possibleNames as table, continents as table*/) =>
         let
             NewWorld = (world as record) => 
                 [
-                    countryInfo = (optional code as text) =>
-                        world[Countries]{[Country Code = code]},
-                    findCountry = (name as text) as nullable text =>
-                        try world[Possible Names]{[Possible Name = Text.Proper(name)]}[Country Code] otherwise Error.Record("Country Missing","Could not find country in list of possible names",name),
-                    addCountryName = (code as text, name as text) =>
-                        if not List.Contains(try world[Possible Names][Possible Name] otherwise {},name) then
-                            @NewWorld(
-                                world & 
-                                [Possible Names = Table.AddKey(Table.FromRecords((try Table.ToRecords(world[Possible Names]) otherwise {}) & {[Country Code = Text.Upper(code), Possible Name = Text.Proper(name)]}),{"Possible Name"},true)]
-                            )
-                        else
-                            error "Name exists",
+                    countryInfo = 
+                        let
+                            // Define the function type
+                            countryInfoType = type function (
+                                optional code as (type text meta [
+                                    Documentation.FieldCaption = "Country Code",
+                                    Documentation.FieldDescription = "The country code to lookup (e.g. US, FR, JP)",
+                                    Documentation.SampleValues = {"US", "FR", "JP"}
+                                ]))
+                                as record meta [
+                                    Documentation.Name = "countryInfo",
+                                    Documentation.LongDescription = "Retrieves information about a country, including its numeric code, alpha3 code, and name.",
+                                    Documentation.Examples = {[
+                                        Description = "Returns information about the United States of America",
+                                        Code = "countryInfo(""US"")",
+                                        Result = "[#" & """Country Code (numeric)" & """ = ""840""," & """Country Code""" & " = ""US""," & """Country Code (alpha3)""" & " = ""USA""," & """Country Name""" & " = ""United States of America""]"
+                                    ],[
+                                        Description = "Returns information about France",
+                                        Code = "countryInfo(""FR"")",
+                                        Result = "[#" & """Country Code (numeric)" & """ = ""250""," & """Country Code""" & " = ""FR""," & """Country Code (alpha3)""" & " = ""FRA""," & """Country Name""" & " = ""France""]"
+                                    ]}
+                                ],
+
+                            // Define the function implementation
+                            countryInfoImpl = (optional code as text) =>
+                                world[Countries]{[Country Code = code]},
+
+                            fn = Value.ReplaceType(countryInfoImpl, countryInfoType)
+                        in
+                            fn,
+
+                    findCountry = 
+                        let
+                            // Define the function type
+                            findCountryType = type function (
+                                name as (type text meta [
+                                    Documentation.FieldCaption = "Country Name",
+                                    Documentation.FieldDescription = "The name of the country to search for",
+                                    Documentation.SampleValues = {"Brazil", "Japan", "Spain"}
+                                ]))
+                                as (type nullable text) meta [
+                                    Documentation.Name = "findCountry",
+                                    Documentation.LongDescription = "<b>FOR BEST RESULTS: Add a new query that references this function within your ISO-3166 object.</b>#(cr)#(cr)Returns the ISO 3166-1 alpha-2 code for the given country name, or an error if the country is not found.",
+                                    Documentation.Examples = {[
+                                        Description = "Returns 'BR' for Brazil",
+                                        Code = "findCountry(""Brazil"")",
+                                        Result = """BR"""
+                                    ],[
+                                        Description = "Returns 'JP' for Japan",
+                                        Code = "findCountry(""Japan"")",
+                                        Result = """JP"""
+                                    ]}
+                                ],
+
+                            // Define the function implementation
+                            findCountryImpl = (name as text) as nullable text =>
+                                try world[Possible Names]{[Possible Name = Text.Proper(name)]}[Country Code] otherwise Error.Record("Country Missing","Could not find country in list of possible names",name),
+
+                            fn = Value.ReplaceType(findCountryImpl, findCountryType)
+                        in
+                            fn,
+
+                    addCountryName = 
+                        let
+                            // Define the function type
+                            addCountryNameType = type function (
+                                code as (type text meta [
+                                    Documentation.FieldCaption = "Country Code",
+                                    Documentation.FieldDescription = "The ISO 3166-1 alpha-2 code for the country",
+                                    Documentation.SampleValues = {"US", "FR", "CN"}
+                                ]),
+                                name as (type text meta [
+                                    Documentation.FieldCaption = "Country Name",
+                                    Documentation.FieldDescription = "The name of the country to add",
+                                    Documentation.SampleValues = {"United States", "France", "China"}
+                                ]))
+                                as (type any) meta [
+                                    Documentation.Name = "addCountryName",
+                                    Documentation.LongDescription = "Adds a country name to the internal world record, if it doesn't already exist.",
+                                    Documentation.Examples = {[
+                                        Description = "Adds 'United States' to the list of possible names for the US country code",
+                                        Code = "addCountryName(""US"", ""United States"")",
+                                        Result = "<i>Updated ISO-3166-1 object</i>"
+                                    ],[
+                                        Description = "Attempts to add 'United States' to the list of possible names again and fails",
+                                        Code = "addCountryName(""US"", ""United States"")",
+                                        Result = "<i>Error</i>"
+                                    ]}
+                                ],
+
+                            // Define the function implementation
+                            addCountryNameImpl = (code as text, name as text) =>
+                                if not List.Contains(try world[Possible Names][Possible Name] otherwise {},name) then
+                                    @NewWorld(
+                                        world & 
+                                        [Possible Names = Table.AddKey(Table.FromRecords((try Table.ToRecords(world[Possible Names]) otherwise {}) & {[Country Code = Text.Upper(code), Possible Name = Text.Proper(name)]}),{"Possible Name"},true)]
+                                    )
+                                else
+                                    error "Name exists",
+
+                            fn = Value.ReplaceType(addCountryNameImpl, addCountryNameType)
+                        in
+                            fn,
                     
-                    bulkAddCountryNames = (namesToAdd as list) =>
-                        List.Accumulate(namesToAdd,@NewWorld(world), (state,current) => state[addCountryName](current[Country Code],current[Possible Name])),
-                    countryDimension = () =>
-                        Table.RemoveColumns(
-                            Table.ExpandTableColumn(
-                                Table.NestedJoin(world[Countries],"Country Code",world[Continents],"ISO-alpha2 Code","Continent"),
-                                "Continent",
-                                Table.ColumnNames(world[Continents])
-                            ),
-                            "ISO-alpha2 Code"
-                        ),
+                    bulkAddCountryNames = 
+                        let
+                            // Define the function type
+                            bulkAddCountryNamesType = 
+                                type function (
+                                    namesToAdd as (type list meta [
+                                        Documentation.FieldCaption = "Names to add",
+                                        Documentation.FieldDescription = "List of records to add to the world record. Each record should have 'Country Code' and 'Possible Name' fields."
+                                    ])
+                                ) as any meta [
+                                    Documentation.Name = "bulkAddCountryNames",
+                                    Documentation.LongDescription = "Adds new potential country names in bulk.",
+                                    Documentation.Examples = {[
+                                        Description = "Adds multiple country names to the world record",
+                                        Code = "bulkAddCountryNames([ [Country Code = ""US"", Possible Name = ""United States""], [Country Code = ""CA"", Possible Name = ""Canada""] ])",
+                                        Result = "Table representing the updated world record"
+                                    ]}
+                                ],
+
+                            // Define the function implementation
+                            bulkAddCountryNamesImpl = (namesToAdd as list) =>
+                                List.Accumulate(
+                                    namesToAdd,
+                                    @NewWorld(world),
+                                    (state,current) => state[addCountryName](current[Country Code], current[Possible Name])
+                                ),
+                            fn = Value.ReplaceType(bulkAddCountryNamesImpl, bulkAddCountryNamesType)
+                        in
+                            fn,
+                            
+                    countryDimension = 
+                        let
+                            // Define the function type
+                            countryDimensionType = type function () as table 
+                                meta [
+                                    Documentation.Name = "countryDimension",
+                                    Documentation.LongDescription = "Returns a table with all countries ",
+                                    Documentation.Examples = {[
+                                        Description = "Returns a table with all countries and their respective regions and sub-regions",
+                                        Code = "countryDimension()",
+                                        Result = "#table({""Country Code (numeric)"", ""Country Code"", ""Country Code (alpha3)"", ""Country Name"", ""Global Code"", ""Global Name"", ""Region Code"", ""Region Name"", ""Sub-region Code"", ""Sub-region Name"", ""Intermediate Region Code"", ""Intermediate Region Name""}, {{44, ""BS"", ""BHS"", ""Bahamas"", 1, ""World"", 19, ""Americas"", 419, ""Latin America and the Caribbean"", 29, ""Caribbean""}, ...})"
+                                    ]}
+                                ],
+
+                            // Define the function implementation
+                            countryDimensionImpl = () as table =>
+                                Table.RemoveColumns(
+                                    Table.ExpandTableColumn(
+                                        Table.NestedJoin(world[Countries],"Country Code",world[Continents],"ISO-alpha2 Code","Continent"),
+                                        "Continent",
+                                        Table.ColumnNames(world[Continents])
+                                    ),
+                                    "ISO-alpha2 Code"
+                                ),
+
+                            fn = Value.ReplaceType(countryDimensionImpl, countryDimensionType)
+                        in
+                            fn,
+                            
                     Countries = Table.SelectColumns(countryDimension(),{"Country Code", "Country Code (alpha3)", "Country Name", "Region Name", "Sub-region Name", "Intermediate Region Name"})
                    
                 ] meta [
@@ -1364,6 +1502,5 @@ let
             ]
         in
             NewWorld(initialState)
-
 in
     createWorld
