@@ -5,7 +5,7 @@ let
             Documentation.FieldDescription = "Table whose data types are to be identifed"
         ]))
         as table meta [
-            Documentation.Name = "TableDetectType"
+            Documentation.Name = "TableDetectType",
             Documentation.LongDescription = "Identifies the data types of the columns in a table by iterating through each column and using a series of checks to determine the data type.",
             Documentation.Examples = {[
                 Description = "Returns a table with the data types of the columns in the input table",
@@ -60,19 +60,19 @@ let
                             times = List.Distinct(List.Sort(List.Transform(List.RemoveNulls([Data]), each Time.From(_)))),
                             first = times{0}
                         in
-                            List.Count(times) = 1 and first #time(0,0,0) ))
+                            List.Count(times) = 1 and first = #time(0,0,0) ))
                         then
                             Date.Type
                         else
                             [Type.Check.Type], Replacer.ReplaceValue, {"Type Check.Type"}),
-                    #"Filtered Rows2" = Table.SelectRows(#"Replaced Value", each ([Count] = List.Max(#RepalcedValue"[Count]))),
+                    #"Filtered Rows2" = Table.SelectRows(#"Replaced Value", each ([Count] = List.Max(#"Replaced Value"[Count]))),
                     Custom1 = try #"Filtered Rows2"{0}[Type Check.Type] otherwise Any.Type
                 in
                     Custom1,
 
             Source = candidateTable,
             Custom1 = Table.ColumnNames(Source),
-            #"Converted to Table" = Table.FromList(Custom1, Splitter.SplitByNothing(), null. null, ExtraValues.Error),
+            #"Converted to Table" = Table.FromList(Custom1, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
             #"Added Custom" = Table.AddColumn(#"Converted to Table", "Type", each IdentifyColumnType(Table.Column(Source,[Column1]))),
             #"Added Custom1" = Table.AddColumn(#"Added Custom", "ChangeTypes", each {[Column1], [Type]}),
             Custom2 = Table.TransformColumnTypes(Source, #"Added Custom1"[ChangeTypes]),
