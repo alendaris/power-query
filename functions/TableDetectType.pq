@@ -75,7 +75,7 @@ let
             #"Converted to Table" = Table.FromList(Custom1, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
             #"Added Custom" = Table.AddColumn(#"Converted to Table", "Type", each IdentifyColumnType(Table.Column(Source,[Column1]))),
             #"Added Custom1" = Table.AddColumn(#"Added Custom", "ChangeTypes", each {[Column1], [Type]}),
-            Custom2 = Table.TransformColumnTypes(Source, #"Added Custom1"[ChangeTypes]),
+            Custom2 = Table.TransformColumnTypes(Source, #"Added Custom1"[ChangeTypes])
         in
             Custom2
 in
