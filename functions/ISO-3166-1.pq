@@ -1017,6 +1017,8 @@ let
                 {"GB", "GBR"},
                 {"GB", "United Kingdom of Great Britain and Northern Ireland"},
                 {"GB", "GB"},
+                {"GB", "United Kingdom"},
+                {"GB", "Great Britain"},
                 {"US", "840"},
                 {"US", "USA"},
                 {"US", "United States of America"},
